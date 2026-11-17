@@ -1,5 +1,5 @@
 # Photoshop + Camera Raw automation — recipe library
-_Built Nov 14–15 2026 (9956 revisited Nov 15 PM) on 9689 (hoodoo ridge), 9822 (fog hill / spire), 9861 (fog hoodoo + forest gap), 9785 (amphitheater, storm sky), 9792 (near-raw fog, gorge, branch frame) and 9956 (fog pano, hub + window fin, spine removed). Paste as session context._
+_Built Nov 14–16 2026 on 9689, 9822, 9861, 9785, 9792, 9956, 0028, 0013, 0044 (Bryce sunrise amphitheater, hero hoodoo lift + mesa dehaze), and 0265 (Bryce midday amphitheater, foreground calm + shadow warm-up). Paste as session context._
 
 **Session order (user rules): 1. WB check first, always, before any edit. 2. Composition / crop discussion. 3. One correction at a time, measured. Critiques must also say what works (composition, leading lines, DR retention, shadow detail, tonal balance).**
 
@@ -108,6 +108,8 @@ Mask components (combined in order):
 - **Edge balance on a fog edge**: burning bright fog hits ~2× harder than rock for the same exposure. Right-edge gradient Exp −0.12 (+Dehaze) gave −10 L* and an edge darker than the interior (grey band). **Exp −0.06, no Dehaze, long ramp (last ~22% of width)** → edge flat with interior (66→61). Target: edge ≈ interior, not darker.
 - **Secondary anchor at a frame edge** (window fin): Radial ∩ rock-tone range (`0.05 0.12 0.50 0.62`, keeps surrounding fog out) with Clarity/Texture +0.20, Dehaze +0.15 → detail +15%, weight 0.11→0.14. +0.12/+0.08 was too timid (+8%).
 - **Foreground calm**: bottom ∩ fade-in-right gradients, Exp −0.06, Sat −0.08 → −1.4 L*, C* −1.6, weight 0.34→0.31.
+- **`LocalTemperature` calibration (0265):** on darks L* 10–20 (Lum range 0/0/0.14/0.24), stored +0.12 → b* +1.6, +0.30 → b* +4.6 ≈ **+0.15 b* per +0.01** (dialog +1). Foliage hue unchanged (105→104°). Side effect: shaded red rock inside the mask warms too (b* +2.7 at +0.30) — a darks-only range can't separate it.
+- **Texture/Clarity at preview scale under-read** (0265): hero Clarity/Texture +0.15/+0.12 → +8% detail at 2000 px; +0.22/+0.22 → +11%, but clearly crisper at 1:1. Don't chase the preview number — check a full-res crop.
 - Not yet observed: Brush (standalone), Depth.
 
 ## 6. Who does what
@@ -220,7 +222,7 @@ One layer: **"_52_9822 (edit)"** — the raw SO itself (outer wrapper removed wi
 
 ## 15. Tooling
 - `acr.py`: builds `$LCs` XMP — `grad()`, `radial()`, `lum()` (Luminance Range), `corr()`, `set_cmd2(corrs, extra=GLOW)`; coords given in crop-preview px, converted to uncropped-SO normalized (`SX/SY` constants per image). For edits after dialog work, edit the live `$LCs` string instead and resend all keys.
-- `wb.py` (white-ref / rock / tree a*·b*·hue table from 16-bit renders). `m.py` (load → L*, C*, detail; region table) and `diff.py` (region ΔL/detail/C* table + `|ΔL|×15` mask image) — current versions in `~/dev/adb-mcp/recipes/`. `diff.py` region ΔL table + `|ΔL|×15` mask image; `wb.py` fog-density WB check; `mock.py` crop mocks with thirds grid.
+- `wb.py` (Nov 16, generic): auto-horizon sky/cloud density bins, low-chroma land (fog/haze) bins, pale-rock bins, darks/foliage bins (deep bins blue = skylight → local fix), warm rock refs, hue histogram, clipping. No hard-coded boxes, no skimage (pure-numpy Lab) → runs in device VM too. `python3 wb.py render_16.png [--sky-rows N] [--save8]`. `m.py` (load → L*, C*, detail; region table) and `diff.py` (region ΔL/detail/C* table + `|ΔL|×15` mask image) — current versions in `~/dev/adb-mcp/recipes/`. `diff.py` region ΔL table + `|ΔL|×15` mask image; `wb.py` fog-density WB check; `mock.py` crop mocks with thirds grid.
 
 ## 13. 9792 state at end of session (saved by user)
 Raw SO `_52_9792` (WB 6200/0) + one Camera Raw Filter: Land · Sky texture · Gorge dodge · Field presence, **plus the user's manual Remove stroke on the lower branch** (not in the JSON). Crop 4:3 non-destructive (columns 907–8192). Full command: `crf-9792-final.json`.
@@ -231,3 +233,16 @@ One layer: raw SO `_52_9785` + one Camera Raw Filter, 5 corrections: Light pool 
 ## 11. 9861 state at end of session (saved by user)
 One layer: raw SO `_52_9861` (WB 6300 / −12 + user globals) + **one Camera Raw Filter, 6 corrections**: Rock lift · Forest dehaze · BG wall detail · Right block calm · Ledge burn · Corner fix. Crop 16:9 non-destructive (rows 728–5336 of 8192×5464). Full command + crop: `crf-9861-final.json`.
 - Editing an existing filter: rewrite the whole `$LCs` (all corrections) in one `set` on `filterFX` index 1; omit `$BigT`. New corrections need fresh 32-hex `CorrectionSyncID` / `MaskSyncID`.
+
+## 18. 0265 (Bryce midday amphitheater, pale hero spire, bright right boulder + rubble foreground, R5 II CR3, 8192×5464) — `…/2026-11-02/_52_0265-Edit.tif`, `crf-0265-final.json`
+- **WB (new generic `wb.py`): left as shot.** Sunlit cloud cores a* −1.1 / b* −1.2; cloud bases cooler (skylight, natural); pale limestone hue 70–80° (scatter, not cast). Only **deep forest shadows blue (b* −12, L* 10–20)** while lit foliage stayed green (hue 105°) = open-shade skylight → **local** darks-only warm-up, not raw WB (global warming would push the already-saturated rock orange). Optional Tint +2–3 for the faint green cloud a* ≈ −1.3 — not applied.
+- **Crop 16:9 full width** (rows 205–4813): weight map peaked bottom-right corner; 16:9 put the spire on the right-third line (1350/2000 vs 1333) and dropped most rubble; the gully mouth stays in. Left-trim variant pushed the left hoodoos to the edge — rejected.
+- **F1 BR calm** (radial off the right edge, no subtract needed when the hero sits outside the box): Exp −0.08 + Hl −0.15 + Sat −0.10 → bright boulder −6.4 L* (bright rock burns ~1.3× the plan), but visual weight barely moved (33→30%). **Weight on busy rubble is texture-driven** → pass 2 added Texture −0.15 / Clarity −0.10 (detail −5…−6%, no L* change). The weight metric still read 3:1 vs the hero, yet visually the eye lands on the spire first → user stopped there. Weight ratio is a guide, not a target.
+- **F2 hero presence:** radial ∩ Lum 0.30/0.40/0.85/0.95; Clarity/Texture +0.22, Exp +0.05 (+0.20 EV), Hl −0.15 → +2.7 L*, crisper surface, top held.
+- **F3 shadow warm-up:** big radial over forest + mid band ∩ Lum 0/0/0.14/0.24; Temp +0.30, Tint +0.04, Shadows +0.08 → darks b* −9.4 → −4.8. L* 30–45 distant haze (b* −10.5) untouched = depth cue kept.
+- **T1 mid opening:** Shadows +0.15, Exp +0.06, Dehaze +0.10 ∩ Lum 0.05/0.12/0.45/0.60 → 21.8 → 24.7 L*, still darker than the hero (shaded-vs-lit rule).
+- **T2 BL calm** (bottom ∩ fade-right gradients, Exp −0.06, Sat −0.06) → −1.6 L*; **T3 clouds** (top ∩ Lum bright, Hl −0.25, Dehaze +0.10) → −2.5 L*, slightly cooler.
+- **First-apply with 6 corrections in one call worked** (no dialog); then `set` with full `$LCs` for pass 2. `Flipped="true"` radials = inside, as on 0044.
+- ⚠️ Document ID can change mid-session (143 → 194, same file) — re-read with `get_documents` before targeting by `_id`.
+- Reading `b*` maps: a Saturation cut shows up as "cooler" b* on warm rock — not a cast.
+

@@ -1,5 +1,5 @@
-# Session handoff — Photoshop + Camera Raw automation (Nov 15 2026, after 9956 revisit)
-Paste this into the new session together with **ps-acr-recipes.md** (full reference), **acr.py** (XMP builder), **acr_band.py**, **m.py** / **diff.py** (measurement). `crf-*.json` are worked examples — attach one only if the new image is similar (fog pano → `crf-9956-final.json`).
+# Session handoff — Photoshop + Camera Raw automation (Nov 16 2026, after 0265)
+Paste this into the new session together with **ps-acr-recipes.md** (full reference), **acr.py** (XMP builder), **acr_band.py**, **m.py** / **diff.py** (measurement), **wb.py** (generic WB check). `crf-*.json` are worked examples — attach one only if the new image is similar (fog pano → `crf-9956-final.json`).
 
 ## Setup (unchanged)
 - Chain: chat ⇄ remote-devices ⇄ MCP servers (Claude Desktop) ⇄ node proxy :3001 ⇄ UXP plugin ⇄ Photoshop.
@@ -8,7 +8,7 @@ Paste this into the new session together with **ps-acr-recipes.md** (full refere
 
 ## Workflow (user rules in bold)
 1. Claude: `get_documents` / `get_layers`, read doc info (size, raw SO type, existing raw settings), baseline render.
-2. **WB check first, before any edit** — fog/sky by density bins; distinguish rock-scatter warmth from a cast. Fix in the raw SO (user double-click) or filter Tint as fallback.
+2. **WB check first, before any edit** — run `python3 wb.py measure/<id>_16.png` (generic since Nov 16: auto-horizon, density bins, no hard-coded boxes); fog/sky by density bins; distinguish rock-scatter warmth from a cast. Fix in the raw SO (user double-click) or filter Tint as fallback.
 3. Composition discussion: metrics (detail/weight map) + crop mocks with thirds grid; non-destructive `crop` (`delete:false`).
 4. **Feedback includes what works** (composition, leading lines, DR retention, shadow detail, tonal balance) plus top FIX/TASTE items. Ignore the mat; don't chase small clipping numbers unless it's for print.
 5. One correction at a time in **one Camera Raw Filter**: render → measure → adjust. Start low; dark subjects need ~1.5–2× the exposure; hazy areas need Dehaze ≥ +0.25.
@@ -28,6 +28,9 @@ Paste this into the new session together with **ps-acr-recipes.md** (full refere
 | **9956 revisit (PM)** | Fog rock edges (Texture/Clarity ∩ rock-tone range, +20…39% detail); Crevice lift (darks only, gentle); Right edge Exp −0.06 (fog edge flat with interior); Window fin Clarity/Texture +0.20, Dehaze +0.15; BR calm. Tree lift in crevices abandoned (not maskable under fog) | saved, 8 corrections |
 | **0028 hoodoo bowl** | WB cast fixed in raw SO (eyedropper on white tower); spire lift + surround darken; tree pools (spot radials ∩ LumRange); user pine deepen (∩ Color Range), FG vignette minus spire, Blue primary Sat +7; left-trim crop 1.40:1 | saved (`…/2026-11-01/_52_0028-Edit.tif`) |
 | **0013 fog-gap canyon** | WB cyan cast → 5300/+7 (Tint matters); 16:9 sky trim; sky gradient ∩ bright; hero crispness > lift; tree pools (skip far forest); distant ravines ∩ shadows; user object-mask pine | saved (`…/2026-11-01/_52_0013-Edit.tif`) |
+| **0044 sunrise amphitheater** | WB OK (clouds neutral a* +0.08, b* +0.48); 3:2 native framing; Hero Contrast (Texture +15, Clarity +15, Exp +0.30 EV dialog ∩ LumRange); Mesa flare Dehaze +25 + Shadows +15; Sunlit Hoodoo tips (Exp +0.30 EV, Whites +10, Temp +6); FG tree calming (Exp -0.40 EV ∩ LumRange); Hero detail +27%, dL +4.3, zero sky spill | saved (`…/2026-11-02/_52_0044-Edit.tif`) |
+| **0265 midday amphitheater** | WB as shot (only deep forest shadows blue → local Temp +0.30 on darks); 16:9 full-width crop (spire on right third); BR calm (Exp −0.08, Hl −0.15, Sat −0.10, + Texture −0.15/Clarity −0.10 in pass 2); hero Clarity/Texture +0.22; mid shadows +0.15; BL calm; cloud Hl −0.25. 2 passes, user stopped with weight still bottom-right (looks right) | `crf-0265-final.json` |
+
 
 ## Learned this session
 - Remove schema = filter key `$Rtch` (`crs:RemoveAreas`, `heal_patchmatch`, `fill_method="firefly"`, Mask/Paint dabs); pixels in `$BigT`.
@@ -55,3 +58,12 @@ Paste this into the new session together with **ps-acr-recipes.md** (full refere
 
 ## Open items
 - Still not observed: Brush (standalone), Depth masks.
+
+## Learned (0265)
+- `wb.py` is now generic (auto-horizon sky/cloud bins, fog/haze bins, pale-rock bins, darks/foliage bins, hue histogram, clipping; pure numpy, runs in the device VM too). Only deep darks blue + lit foliage green = skylight in open shade → local fix.
+- **`LocalTemperature` ≈ +0.15 b* per +0.01 stored** on darks (L* 10–20); a darks-only mask also warms shaded red rock (b* +2.7 at +0.30).
+- Visual weight on busy rubble is texture-driven: burns barely move it; Texture/Clarity negative does. Treat the weight ratio as a guide — stop when the eye lands on the hero.
+- Hero Texture/Clarity gains under-read at 2000 px (+11% vs visibly crisper at 1:1).
+- Six corrections in one first-apply call worked; pass-2 edits = read live filter → edit `$LCs` → `set` all keys.
+- Photoshop can reissue the document `_id` mid-session (143 → 194) — re-read before targeting.
+

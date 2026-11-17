@@ -15,7 +15,7 @@ Paste this into the new session together with **ps-acr-recipes.md** (full refere
 6. **Before every scripted write: read the live filter and resend ALL keys** (user's Glow `$GLW*`, `$Rtch` Remove, …). `$BigT` can be omitted — AI masks and Generative Remove patches survive (verified 9956).
 7. Removals: user paints Camera Raw **Remove** (Generative) **in a Camera Raw Filter on the layer — never in the raw SO dialog** (raw-SO settings aren't readable, so no recipe). Save before the first scripted write after a Remove (revert = safety net).
 8. After the user saves: Claude writes `crf-<id>-final.json` and updates the recipe library.
-9. **Cleanup after each image** (once the recipe is written): delete the render PNGs in `~/dev/adb-mcp/measure/` (scratch, ~10 MB each; keep the folder). Commit the recipe repo locally; the user pushes.
+9. **Cleanup after each image** (once the recipe is written): delete the render PNGs in `~/dev/adb-mcp/measure/` (scratch, ~10 MB each; keep the folder). Commit in the `adb-mcp` repo (recipes/ is tracked there since Nov 16; the old nested recipes repo history is archived at `~/dev/recipes-history.git`). Pass `-c user.name/-c user.email` (the device shell has no git identity); the user pushes (`git@github.com:tanhuynh/adb-mcp.git`, SSH isn't reachable from the device shell).
 
 ## Done so far
 | Image | What made it work | Status |

@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "photoshop": {
+      "command": "/Users/tanhuynh/dev/adb-mcp/mcp/.venv/bin/python",
+      "args": [
+        "/Users/tanhuynh/dev/adb-mcp/mcp/ps-mcp.py"
+      ],
+      "trust": true
+    },
+    "photoshop-batch-play": {
+      "command": "/Users/tanhuynh/dev/adb-mcp/mcp/.venv/bin/python",
+      "args": [
+        "/Users/tanhuynh/dev/adb-mcp/mcp/ps-batch-play.py"
+      ],
+      "trust": true
+    }
+  }
+}

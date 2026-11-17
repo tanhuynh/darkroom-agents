@@ -65,6 +65,7 @@ Paste this into the new session together with **ps-acr-recipes.md** (full refere
 - Still not observed: Brush (standalone), Depth masks.
 
 ## Learned (0265)
+- **Default plan = subject edit + mid-ground structure pass** (Claude-vs-Gemini merge, pass 5): lift midtone faces (Lum `0.16/0.26/0.55/0.70`, Exp +0.08, Shadows +0.10) + Clarity/Texture +0.15 on the same range; keep crevices ≤ original L*; no Shadows on color-only shadow fixes. Mid detail +1% → +13% with the subject edits intact.
 - `wb.py` is now generic (auto-horizon sky/cloud bins, fog/haze bins, pale-rock bins, darks/foliage bins, hue histogram, clipping; pure numpy, runs in the device VM too). Only deep darks blue + lit foliage green = skylight in open shade → local fix.
 - **`LocalTemperature` ≈ +0.15 b* per +0.01 stored** on darks (L* 10–20); a darks-only mask also warms shaded red rock (b* +2.7 at +0.30).
 - Visual weight on busy rubble is texture-driven: burns barely move it; Texture/Clarity negative does. Treat the weight ratio as a guide — stop when the eye lands on the hero.

@@ -1,14 +1,19 @@
 # Session handoff — Photoshop + Camera Raw automation (Nov 16 2026, after 0265)
-Paste this into the new session together with **ps-acr-recipes.md** (full reference), **acr.py** (XMP builder), **acr_band.py**, **m.py** / **diff.py** (measurement), **wb.py** (generic WB check). `crf-*.json` are worked examples — attach one only if the new image is similar (fog pano → `crf-9956-final.json`).
+Paste this into the new session together with **ps-acr-recipes.md** (full reference), **acr.py** (XMP builder), **acr_band.py**, **measure_all.py** (unified measurement — use this; `wb.py` / `m.py` / `diff.py` are its components). `crf-*.json` are worked examples — attach one only if the new image is similar (fog pano → `crf-9956-final.json`).
 
 ## Setup (unchanged)
 - Chain: chat ⇄ remote-devices ⇄ MCP servers (Claude Desktop) ⇄ node proxy :3001 ⇄ UXP plugin ⇄ Photoshop.
 - Each session: `cd ~/dev/adb-mcp/adb-proxy-socket && node proxy.js` → Photoshop → UXP Dev Tools: Load/**Reload** "Photoshop MCP Agent" → Plugins › Photoshop MCP Agent › **Connect**. (`No clients registered for application: photoshop` = plugin not connected.)
 - Connect `~/dev/adb-mcp` as a folder in the Claude app (measure PNGs go to `measure/`). Open a DUPLICATE of the image. Quit LrC. **Close every dialog before Claude acts** (else "host is in a modal state").
 
+## Unified Measurement & Visual Proof Script
+- Always use `/Users/tanhuynh/dev/adb-mcp/mcp/.venv/bin/python /Users/tanhuynh/dev/adb-mcp/recipes/measure_all.py` instead of writing ad-hoc measurement scripts or calling `wb.py`, `m.py`, and `diff.py` separately:
+  - **Baseline & Crop Check:** `measure_all.py baseline <render.png> [--crop x0,y0,x1,y1]`
+  - **Post-Pass Diff & Overlays:** `measure_all.py diff <before.png> <after.png> [--hero x0,y0,x1,y1]`
+
 ## Workflow (user rules in bold)
 1. Claude: `get_documents` / `get_layers`, read doc info (size, raw SO type, existing raw settings), baseline render.
-2. **WB check first, before any edit** — run `python3 wb.py measure/<id>_16.png` (generic since Nov 16: auto-horizon, density bins, no hard-coded boxes); fog/sky by density bins; distinguish rock-scatter warmth from a cast. Fix in the raw SO (user double-click) or filter Tint as fallback.
+2. **WB check first, before any edit** — run `measure_all.py baseline <render.png> [--crop x0,y0,x1,y1]` (see below); fog/sky by density bins; distinguish rock-scatter warmth from a cast. Fix in the raw SO (user double-click) or filter Tint as fallback.
 3. Composition discussion: metrics (detail/weight map) + crop mocks with thirds grid; non-destructive `crop` (`delete:false`).
 4. **Feedback includes what works** (composition, leading lines, DR retention, shadow detail, tonal balance) plus top FIX/TASTE items. Ignore the mat; don't chase small clipping numbers unless it's for print.
 5. One correction at a time in **one Camera Raw Filter**: render → measure → adjust. Start low; dark subjects need ~1.5–2× the exposure; hazy areas need Dehaze ≥ +0.25.

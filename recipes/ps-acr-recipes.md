@@ -222,6 +222,7 @@ One layer: **"_52_9822 (edit)"** — the raw SO itself (outer wrapper removed wi
 
 ## 15. Tooling
 - `acr.py`: builds `$LCs` XMP — `grad()`, `radial()`, `lum()` (Luminance Range), `corr()`, `set_cmd2(corrs, extra=GLOW)`; coords given in crop-preview px, converted to uncropped-SO normalized (`SX/SY` constants per image). For edits after dialog work, edit the live `$LCs` string instead and resend all keys.
+- **`measure_all.py` (Nov 16) — always use this** instead of ad-hoc scripts or separate `wb.py`/`m.py`/`diff.py` calls: `/Users/tanhuynh/dev/adb-mcp/mcp/.venv/bin/python /Users/tanhuynh/dev/adb-mcp/recipes/measure_all.py baseline <render.png> [--crop x0,y0,x1,y1]` (WB bins, 3×3 weight map, crop grid preview) and `… diff <before.png> <after.png> [--hero x0,y0,x1,y1]` (regional diff + before/after, `|ΔL|×15`, Δb*, hero zoom overlays).
 - `wb.py` (Nov 16, generic): auto-horizon sky/cloud density bins, low-chroma land (fog/haze) bins, pale-rock bins, darks/foliage bins (deep bins blue = skylight → local fix), warm rock refs, hue histogram, clipping. No hard-coded boxes, no skimage (pure-numpy Lab) → runs in device VM too. `python3 wb.py render_16.png [--sky-rows N] [--save8]`. `m.py` (load → L*, C*, detail; region table) and `diff.py` (region ΔL/detail/C* table + `|ΔL|×15` mask image) — current versions in `~/dev/adb-mcp/recipes/`. `diff.py` region ΔL table + `|ΔL|×15` mask image; `wb.py` fog-density WB check; `mock.py` crop mocks with thirds grid.
 
 ## 13. 9792 state at end of session (saved by user)

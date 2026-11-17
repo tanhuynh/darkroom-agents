@@ -19,11 +19,31 @@ from PIL import Image, ImageDraw
 from skimage import color, filters
 
 
+def load_rgb(path):
+    """Float RGB in [0,1] at the file's native bit depth (16-bit PNGs keep full precision).
+    PIL's convert("RGB") truncates 16-bit renders to 8-bit, which costs shadow precision
+    (deep-shadow b* bins, L* p1) — so read with OpenCV when available."""
+    try:
+        import cv2
+        raw = cv2.imread(path, cv2.IMREAD_UNCHANGED)
+    except ImportError:
+        raw = None
+    if raw is None:  # no OpenCV or unreadable by it -> PIL (8-bit) fallback
+        return np.asarray(Image.open(path).convert("RGB"), dtype=np.float32) / 255.0
+    scale = 65535.0 if raw.dtype == np.uint16 else 255.0
+    if raw.ndim == 2:
+        raw = np.dstack([raw] * 3)
+    return raw[..., :3][..., ::-1].astype(np.float32) / scale  # BGR(A) -> RGB
+
+
+def to_lab(arr):
+    """Returns (8-bit PIL image for overlays, float RGB, Lab)."""
+    img = Image.fromarray(np.clip(arr * 255.0 + 0.5, 0, 255).astype(np.uint8))
+    return img, arr, color.rgb2lab(arr)
+
+
 def load_lab(path):
-    img = Image.open(path).convert("RGB")
-    arr = np.asarray(img, dtype=np.float32) / 255.0
-    lab = color.rgb2lab(arr)
-    return img, arr, lab
+    return to_lab(load_rgb(path))
 
 
 def local_detail(L):
@@ -117,8 +137,14 @@ def run_diff(before_path, after_path, hero_box=None, out_dir="."):
     img_b, _, lab_b = load_lab(after_path)
 
     if lab_a.shape != lab_b.shape:
-        img_b = img_b.resize(img_a.size, Image.Resampling.LANCZOS)
-        _, _, lab_b = load_lab(after_path)
+        # resample the float data (not just the overlay image) so Lab stats compare aligned pixels
+        h_a, w_a = lab_a.shape[:2]
+        try:
+            import cv2
+            arr_b = cv2.resize(load_rgb(after_path), (w_a, h_a), interpolation=cv2.INTER_AREA)
+        except ImportError:
+            arr_b = np.asarray(img_b.resize((w_a, h_a), Image.Resampling.LANCZOS), dtype=np.float32) / 255.0
+        img_b, _, lab_b = to_lab(arr_b)
 
     La, aa, ba = lab_a[..., 0], lab_a[..., 1], lab_a[..., 2]
     Lb, ab, bb = lab_b[..., 0], lab_b[..., 1], lab_b[..., 2]

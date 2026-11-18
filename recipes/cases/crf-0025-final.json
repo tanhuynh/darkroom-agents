@@ -74,11 +74,15 @@
   "grass_L": "-4.5..-5.7 L*, b* -0.6, C* -0.7; Background Exp -0.05 alone = -3.9 L* on L*~46 grass; vignette adds -3.2 at corners, 0 at centre",
   "bird": "deep darks (L*<15) +2.3, shadows +4.0, neck/chest cells detail +0..+10% (2000 px; 1:1 not checked)",
   "remove": "stem path canvas (3500,720)->(2790,830)->(2200,2400); 0.72% of pixels |dL*|>0.5; 23 px changed inside the head box (max 1.2 L*); subject-mask digests recomputed on the dialog re-save",
-  "unverified": "Eye correction (no measurable effect at 2000 px); 1:1 bird edge after the Lens Blur / mask recompute; whether Push widens bird-vs-grass separation (it lit the grass more than the head)",
+  "unverified": "painting the stray feather tips back into the subject depth (the saved file loses them) and re-saving",
   "pass4_background": "Background Highlights -0.10, Saturation -0.05 added: grass -0.7..-0.9 L*, -0.5 C*, detail -1..-4%; bird deep darks/shadows -0.06/-0.08; neck 1:1 halo check clean (no rim; worst -0.7 L* at 30 px, within texture)",
   "pass5_6_push_pull": "Pull(horizontal, Exp -0.02->-0.01) + Push(radial, Exp +0.03, Hi +0.05, Temp +0.03->+0.015): head/beak +1.4 L*, upper neck +0.7, chest 0.00; left grass -2.0 (->-1.4), upper-right grass +2.3 L*, b* +1.0 (->+0.6)",
   "pass7_8_pull_copy": "Pull Copy (diagonal, minus subject): Exp -0.10 -> bottom -5.5..-6.8 L* (bottom-left grass L* 27.9); Exp -0.06 with the old Pull off -> bottom +2.0..+3.3 back (bottom-left 31.2, mid-left 37.2); bird whites/darks +-0.06",
   "lens_blur": "background detail -30..-83% in the blurred upper area (bottom grass -4..-9%); tone +-0.05 L*; Subject mask recomputed (Origin 156,403 -> 203,411), bird tone <=0.3 L*",
-  "scripted_write_after_blur": "identity write and tonal write both kept depth block / $Lblr / $DMIn byte-identical; blurred detail 0.0%; max |dL*| 0.26 (identity)"
+  "scripted_write_after_blur": "identity write and tonal write both kept depth block / $Lblr / $DMIn byte-identical; blurred detail 0.0%; max |dL*| 0.26 (identity)",
+  "lens_blur_vs_push_pull": "four-way control on the final file (blur on/off x Push+Pull Copy on/off): effect on L* identical to <=0.04 everywhere (bottom-left -4.20/-4.20, crown +1.30/+1.30, upper-right grass +2.25/+2.25), map correlation 1.0000; upper-bg detail 0.261 (off) vs 0.031 (on)",
+  "eye_1to1": "Eye radial box 164x120 px canvas (3235,1262): mean +1.51 L*, max +5.98, brightest px 78.8 -> 82.0; read 0.00 at 2000 px",
+  "push_subtract_subject": "Push with the subject subtracted vs as saved: crown -0.95, beak -0.67, neck -0.43, chest -0.04; grass 0.00 -> head gets ~+0.3 instead of +1.3 while grass stays +2.3: worse, keep no subtraction",
+  "blur_edge_1to1": "neck edge clean; blur-on vs blur-off |dL*| p99 2.4 (neck crop) / 6.0 (feather skirt crop), max 24: fine feather tips and a long stray hair beyond the subject are blurred away"
  }
 }

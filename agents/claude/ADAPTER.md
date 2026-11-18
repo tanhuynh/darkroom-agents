@@ -25,6 +25,7 @@ Agent-specific habits and quirks only — editing knowledge goes to `recipes/inb
 - Announces causes from uncontrolled numbers (0025: blamed Clarity / a mask "leak" for a shift that was a render error) — run the control before naming a cause, and say "hypothesis" until a control confirms it.
 - First background-quieting pass stops at Exposure + Texture (0025: Gemini's edit of the same frame also pulled Highlights −0.15 and Saturation −0.05, and looked better) — include Highlights and Saturation (playbook §B.1) from the start, then judge.
 - Reads an annotated preview grid at the wrong scale (0025: labels were ×2 of the drawn grid, so a "head" box measured background) — put the full-resolution scale in the label and sanity-check a region on the image before drawing a conclusion from its numbers.
+- Judges small local corrections at 2000 px (0025: the Eye radial read 0.00 there and was +1.5 L* / catchlight +3.2 L* at 1:1) and states a cause for a visual change before a control (0025: "Push may read weaker after the blur" — the four-way control showed no change) — render 1:1 for small masks, run the control first.
 - After a Photoshop crash/restart, assumes the document is where it left it (0025: the last two scripted edits were gone, document `_id` and folder changed) — read the live filter and compare with the last written XMP first.
 - Keep image previews minimal (session limits): plan in text, one batched call, one composite image per pass.
 - Provenance tag for cases/proposals: `claude`.

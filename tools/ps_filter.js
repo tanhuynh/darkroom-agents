@@ -5,8 +5,9 @@
 //   node tools/ps_filter.js get <docId> <out.json> [--layer 2] [--split <prefix>]
 //       Saves the full `get smartObject` response to <out.json> and prints each filter key with its size.
 //       --split writes <prefix>_lcs.xml, <prefix>_rtch.xml, <prefix>_lblr.xml, … (every key except $BigT).
-//   node tools/ps_filter.js set <docId> --from <out.json> [--lcs new.xml] [--layer 2] [--index 1] [--dry]
-//       Builds a `set` on filterFX from the keys of <out.json> (minus $BigT), replacing $LCs with --lcs if given.
+//   node tools/ps_filter.js set <docId> --from <out.json> [--lcs new.xml] [--key '$Lblr=new.xml' …] [--layer 2] [--index 1] [--dry]
+//       Builds a `set` on filterFX from the keys of <out.json> (minus $BigT), replacing $LCs with --lcs and any
+//       other existing string key with --key KEY=file if given.
 //       --dry prints the key list and sizes and sends nothing.
 //
 // Notes: a timed-out write may still complete — run `get` and compare before retrying. "host is in a modal state"
@@ -93,6 +94,13 @@ async function main() {
     for (const [k, v] of Object.entries(live)) if (k !== "$BigT") filter[k] = v;
     const lcs = arg("--lcs");
     if (lcs) filter.$LCs = fs.readFileSync(lcs, "utf8");
+    // --key '$Lblr=file.xml' (repeatable) replaces any other string key with the file's contents
+    process.argv.forEach((a, i) => {
+      if (a !== "--key") return;
+      const [k, f] = process.argv[i + 1].split("=");
+      if (!(k in filter)) { console.error(`--key ${k}: not a key of the live filter`); process.exit(1); }
+      filter[k] = fs.readFileSync(f, "utf8");
+    });
     console.log("keys to send (every key of the live filter, $BigT omitted):");
     report(filter);
     if (flag("--dry")) return;

@@ -29,8 +29,8 @@ Loaded via `WORKFLOW.md` (+ your `agents/<agent>/ADAPTER.md`); load the matching
 - Shared rules `WORKFLOW.md`; adapters `agents/claude/`, `agents/gemini/`, `agents/local/` (template). Inbox: `recipes/inbox/` — 6 proposals from 0025 (render-prophoto, radial-maskinverted, cloned-ai-mask, bisect-protocol, calibrations, lens-blur-keys) awaiting review.
 
 ## Open items
-- More wildlife frames to verify/revise `playbooks/wildlife.md` (0025 left open: eye correction unverified at 1:1; bird edge at 1:1 after the Lens Blur not checked; does the Push widen separation if the subject is subtracted?; Select Subject, Remove and Lens Blur are user steps, the filter JSON cannot replay `$BigT`).
-- Uncommitted work by another agent in the tree (not touched): `tools/apply_pushpull_filter.js`, `apply_step4_filter.js`, `build_pushpull*_xmp.py`, `get_filter.js`, `render_prophoto.js` — the owner decides whether they belong in the repo.
+- More wildlife frames to verify/revise `playbooks/wildlife.md` (0025: Eye, Push-subtract and Lens Blur interaction are now checked; the saved TIFF still loses fine feather tips to the Lens Blur — paint them back into the subject depth; Select Subject, Remove and Lens Blur are user steps, the filter JSON cannot replay `$BigT`).
+- `tools/apply_pushpull_filter.js`, `apply_step4_filter.js`, `build_pushpull*_xmp.py`, `get_filter.js`, `render_prophoto.js` are Gemini's 0025 scratch scripts (image-specific, stale mask digests), committed as examples; `tools/ps_filter.js` is the general read/write tool that replaces them.
 - `measure_all.py` wildlife metrics: subject vs background separation across the mask edge, background busyness, crop/lead-room simulator.
-- Not yet observed: standalone Brush XMP, Depth masks, Lens Blur via script.
+- Not yet observed: standalone Brush XMP, Depth *masks* (Lens Blur depth corrections are now seen: `$Lblr`, `$DMIn`, `DepthBasedCorrections` — see inbox). Lens Blur can be toggled by script (`crs:Active` in `$Lblr`) but not created headless.
 - `acr.py` / `acr_band.py` XMP builders were never committed — rebuild in `tools/` when next needed.

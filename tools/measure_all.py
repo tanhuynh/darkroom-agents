@@ -244,13 +244,13 @@ if __name__ == "__main__":
     p_base = sub.add_parser("baseline")
     p_base.add_argument("render")
     p_base.add_argument("--crop", help="x0,y0,x1,y1 in preview pixels")
-    p_base.add_argument("--out-dir", default="./recipes/measure")
+    p_base.add_argument("--out-dir", default="./measure")
 
     p_diff = sub.add_parser("diff")
     p_diff.add_argument("before")
     p_diff.add_argument("after")
     p_diff.add_argument("--hero", help="x0,y0,x1,y1 in preview pixels")
-    p_diff.add_argument("--out-dir", default="./recipes/measure")
+    p_diff.add_argument("--out-dir", default="./measure")
 
     args = parser.parse_args()
     if args.cmd == "baseline":

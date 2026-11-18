@@ -98,11 +98,11 @@ async function renderDoc(docId, outputPath, width = 2000) {
 async function main() {
   // Export Claude's edit (doc 91: _52_0044-Edit.tif)
   console.log("=== EXPORTING CLAUDE (_52_0044-Edit.tif) ===");
-  await renderDoc(91, "/Users/tanhuynh/dev/adb-mcp/recipes/measure/0044-claude-16.png");
+  await renderDoc(91, "/Users/tanhuynh/dev/darkroom-agents/measure/0044-claude-16.png");
 
   // Export Gemini's edit (doc 59: _52_0044-Gemini.tif)
   console.log("=== EXPORTING GEMINI (_52_0044-Gemini.tif) ===");
-  await renderDoc(59, "/Users/tanhuynh/dev/adb-mcp/recipes/measure/0044-gemini-16.png");
+  await renderDoc(59, "/Users/tanhuynh/dev/darkroom-agents/measure/0044-gemini-16.png");
 
   // Verify open docs
   const docs = await sendCommand("getDocuments", {});

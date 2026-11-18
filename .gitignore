@@ -1,0 +1,10 @@
+# Render scratch (measurement PNGs; cleared after each image)
+measure/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store

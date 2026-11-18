@@ -12,13 +12,13 @@
 > *Place the three 2000 px sRGB reference JPEGs inside `./comparison/` to render inline.*
 
 ### Original Baseline (16:9 Cropped, WB-Only)
-![Original Baseline](./comparison/_52_0265-original.jpg)
+![Original Baseline](./0265/_52_0265-original.jpg)
 
 ### Claude Final Edit (2 Passes — Milder, Center-Guiding)
-![Claude Pass 2 Edit](./comparison/_52_0265-claude.jpg)
+![Claude Pass 2 Edit](./0265/_52_0265-claude.jpg)
 
 ### Gemini Final Edit (1 Pass — Higher Global & Bowl Contrast)
-![Gemini Pass 1 Edit](./comparison/_52_0265-gemini.jpg)
+![Gemini Pass 1 Edit](./0265/_52_0265-gemini.jpg)
 
 ---
 
@@ -42,7 +42,7 @@
 | **Step 2: Crop & Framing** | Recommended **16:9 crop (`top: 205, bottom: 4813`)** to cut bottom-right rubble (`33%` visual weight) and place the hero spire on the right-third line. | Recommended Native 3:2 primary, with 16:9 option (`top: 500, bottom: 5108`), noting top trims `>700 px` slice the right horizon. |
 | **Step 3: Critique Philosophy** | **Subject isolation & edge suppression:** Calm loud foreground rubble, crisp up the hero spire, warm blue forest darks, and preserve far haze. | **Bowl opening & rim definition:** Treat right sunlit fin as entry anchor, lift shaded amphitheater bowl, model clouds, and etch distant plateau rim. |
 | **Step 4: Masking Strategy** | 6 targeted masks (`F1`–`T3`): tight radial on hero spire, broad calm on BR rubble, linear calm on BL rubble, darks-only forest warm-up, gentle middle lift, subtle cloud pull. | 4 broad masks: wide bowl radial (`Feather 75`), sky highlight gradient, horizontal distant rim oval, narrow right-edge linear gradient. |
-| **Step 5–6: Iteration & Visual Proof** | Executed Pass 1, measured calibration gaps (`LocalTemperature` ≈ `0.15 b*` per `0.01`), ran calibrated Pass 2, and generated inline proof crops (`diffmap`, `dbmap`, `spire_zoom`, `before_after`). | Executed single pass with clean crevice isolation (`0.00 ΔL*`), saving measurement PNGs to `./recipes/measure/`. |
+| **Step 5–6: Iteration & Visual Proof** | Executed Pass 1, measured calibration gaps (`LocalTemperature` ≈ `0.15 b*` per `0.01`), ran calibrated Pass 2, and generated inline proof crops (`diffmap`, `dbmap`, `spire_zoom`, `before_after`). | Executed single pass with clean crevice isolation (`0.00 ΔL*`), saving measurement PNGs to `./measure/`. |
 
 ---
 

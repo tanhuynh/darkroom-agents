@@ -88,7 +88,7 @@ async function renderMeasureDoc(outputPath, width = 2000) {
   console.log("Open documents now:", docs.response.map(d => d.name));
 }
 
-const targetPath = process.argv[2] || "/Users/tanhuynh/dev/adb-mcp/recipes/measure/0044-baseline-16.png";
+const targetPath = process.argv[2] || "/Users/tanhuynh/dev/darkroom-agents/measure/0044-baseline-16.png";
 renderMeasureDoc(targetPath).catch(err => {
   console.error("Error in renderMeasureDoc:", err);
   process.exit(1);

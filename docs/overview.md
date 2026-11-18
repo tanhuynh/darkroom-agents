@@ -49,4 +49,4 @@ against each other on the same image.
 - **Cases** — one card + filter JSON per finished image, tagged for retrieval. Episodic memory.
 - **Inbox** — agents propose rule changes; the user reviews before they become shared knowledge.
 
-See `docs/updating-recipes.md` and `docs/adding-an-agent.md`.
+See `docs/running-a-session.md` (day-to-day use), `docs/updating-recipes.md` and `docs/adding-an-agent.md`.

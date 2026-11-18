@@ -15,7 +15,7 @@ workflow and can be benchmarked on the same images.
 | `recipes/` | `engine.md` (how), `playbooks/` landscape + wildlife (what: IF → DO → CHECK), `materials.md`, `cases/` (per-image cards, filter JSONs, `index.csv`), `session-handoff.md`; see `recipes/README.md` |
 | `tools/` | `measure_all.py` (baseline / diff + overlays), `wb.py`, `m.py`, `diff.py`, render helpers |
 | `comparisons/` | Model-vs-model benchmarks on the same image |
-| `docs/` | `overview.md`, `updating-recipes.md`, `adding-an-agent.md`, write-ups |
+| `docs/` | `overview.md`, `running-a-session.md`, `updating-recipes.md`, `adding-an-agent.md`, write-ups |
 | `.gemini/`, `.agents/` | Agent MCP configs (point at the adb-mcp server) |
 
 ## Setup

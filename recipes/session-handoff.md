@@ -21,15 +21,16 @@ Loaded via `WORKFLOW.md` (+ your `agents/<agent>/ADAPTER.md`); load the matching
 9. **Cleanup:** delete render PNGs in `measure/` (keep the folder). Commit in `darkroom-agents` (git details per adapter); the user pushes.
 
 ## Status
-- 9 landscape cases (all Bryce, Nov 2026) + 1 wildlife case (0025, grey crowned crane, Nov 17 2026) — `cases/index.csv`. `playbooks/wildlife.md` is still a draft: 0025 supports §A crop and §B.1 Texture only, as *(1 case)*.
+- 9 landscape cases (all Bryce, Nov 2026) + 1 wildlife case (0025, grey crowned crane, Nov 17–18 2026, saved as `…/2026-10-31/_52_0025-2-Edit.tif`) — `cases/index.csv`. `playbooks/wildlife.md` is still a draft: 0025 supports §A crop, §B.1 background quieting, §B.2 Lens Blur order and §E Push-Pull (pull aimed at the heaviest background; push temperature) only, as *(1 case)*. The 0025 card/JSON are final (7 corrections + Remove + Lens Blur).
 - **Render recipe changed (pending merge):** save the ProPhoto 16-bit PNG and convert with `tools/prophoto_to_srgb.py`; `convertToProfile` can pop a dialog and echo SUCCESS when it is cancelled (see inbox). Until merged, verify the profile (`get profile`) before measuring.
 - Pre-Nov-16 nested recipes history: `~/dev/recipes-history.git`. Pre-restructure library: `recipes/archive/`.
 
 ## Agents
-- Shared rules `WORKFLOW.md`; adapters `agents/claude/`, `agents/gemini/`, `agents/local/` (template). Inbox: `recipes/inbox/` — 5 proposals from 0025 (render-prophoto, radial-maskinverted, cloned-ai-mask, bisect-protocol, calibrations) awaiting review.
+- Shared rules `WORKFLOW.md`; adapters `agents/claude/`, `agents/gemini/`, `agents/local/` (template). Inbox: `recipes/inbox/` — 6 proposals from 0025 (render-prophoto, radial-maskinverted, cloned-ai-mask, bisect-protocol, calibrations, lens-blur-keys) awaiting review.
 
 ## Open items
-- More wildlife frames to verify/revise `playbooks/wildlife.md` (0025 left open: eye correction unverified at 1:1; Select Subject + Remove are user steps, the filter JSON cannot replay `$BigT`).
+- More wildlife frames to verify/revise `playbooks/wildlife.md` (0025 left open: eye correction unverified at 1:1; bird edge at 1:1 after the Lens Blur not checked; does the Push widen separation if the subject is subtracted?; Select Subject, Remove and Lens Blur are user steps, the filter JSON cannot replay `$BigT`).
+- Uncommitted work by another agent in the tree (not touched): `tools/apply_pushpull_filter.js`, `apply_step4_filter.js`, `build_pushpull*_xmp.py`, `get_filter.js`, `render_prophoto.js` — the owner decides whether they belong in the repo.
 - `measure_all.py` wildlife metrics: subject vs background separation across the mask edge, background busyness, crop/lead-room simulator.
 - Not yet observed: standalone Brush XMP, Depth masks, Lens Blur via script.
 - `acr.py` / `acr_band.py` XMP builders were never committed — rebuild in `tools/` when next needed.

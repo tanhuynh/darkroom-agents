@@ -23,5 +23,8 @@ Agent-specific habits and quirks only — editing knowledge goes to `recipes/inb
 - Has made calibration slips in summaries (LocalTemperature once reported as 0.025 instead of ~0.15 b\*/0.01) — quote calibrations from `engine.md` §8, not from memory.
 - Trusts a tool's `SUCCESS` echo over the state it should have produced (0025: `convertToProfile` echoed SUCCESS while a dialog was cancelled, so the baseline stayed ProPhoto) — read the state back (`get profile`, layer/filter) before measuring, and diff an unchanged re-render first.
 - Announces causes from uncontrolled numbers (0025: blamed Clarity / a mask "leak" for a shift that was a render error) — run the control before naming a cause, and say "hypothesis" until a control confirms it.
+- First background-quieting pass stops at Exposure + Texture (0025: Gemini's edit of the same frame also pulled Highlights −0.15 and Saturation −0.05, and looked better) — include Highlights and Saturation (playbook §B.1) from the start, then judge.
+- Reads an annotated preview grid at the wrong scale (0025: labels were ×2 of the drawn grid, so a "head" box measured background) — put the full-resolution scale in the label and sanity-check a region on the image before drawing a conclusion from its numbers.
+- After a Photoshop crash/restart, assumes the document is where it left it (0025: the last two scripted edits were gone, document `_id` and folder changed) — read the live filter and compare with the last written XMP first.
 - Keep image previews minimal (session limits): plan in text, one batched call, one composite image per pass.
 - Provenance tag for cases/proposals: `claude`.

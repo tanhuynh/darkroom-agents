@@ -1,1 +1,2 @@
-@./AGENTS.md
+@./WORKFLOW.md
+@./agents/gemini/ADAPTER.md

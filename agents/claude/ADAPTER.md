@@ -1,0 +1,22 @@
+# Claude adapter
+
+Read with `WORKFLOW.md`. Only Claude-specific plumbing lives here. Two ways Claude runs this project:
+
+## A. Claude app (desktop/web chat, linked to the Mac via the desktop app)
+- **Folder access is per chat:** request `~/dev/darkroom-agents` at the start (and `~/dev/adb-mcp` only if server code is needed); deletion (git lock files, `measure/` cleanup) needs a separate per-chat permission. The Project instructions tell Claude to do this.
+- **Photoshop:** MCP tools proxied through the device bridge (`mcp__remote-devices__Adobe_Photoshop_MCP_Server__*`, `…Batch_Play_MCP_Server__call_batch_play_command`). `config://get_instructions` is not reachable through the proxy — it's the generic adb-mcp prompt (source: `~/dev/adb-mcp/mcp/ps-mcp.py`); this repo's rules supersede it.
+- **Shell:** `device_bash` is a Linux VM on the Mac with the connected folders under `$HOME/mnt/<folder>` — it **cannot run the Mac `.venv`** and has no scikit-image. Run `tools/measure_all.py` in Claude's cloud workspace instead: `device_stage_files` the render PNG + tools → run there (install `numpy scipy scikit-image opencv-python Pillow` if missing) → show overlays with `SendUserFile`. `tools/wb.py` also runs in the VM (pure numpy + OpenCV).
+- **Renders:** batchPlay duplicate/resize/sRGB → `save_document_as(<repo>/measure/<id>_16.png, "PNG")` → stage → measure.
+- **Writing files:** edit in the cloud workspace, then `device_commit_files` to the repo path (or edit in place with `device_bash`).
+- **Git:** the VM has no identity → `git -c user.name="Tan Huynh" -c user.email=<from git log> commit …`. SSH to GitHub is blocked from the VM → the user pushes. `gh` GraphQL is blocked; REST works only for repos attached to the session.
+- **Long calls:** heavy `set`s/renders may time out while succeeding → re-read state before retrying.
+
+## B. Claude Code (terminal on the Mac)
+- Start in the repo: `cd ~/dev/darkroom-agents && claude` → `CLAUDE.md` loads `WORKFLOW.md` + this adapter.
+- MCP servers come from `.mcp.json` in the repo (repo-locked `uv run --directory ~/dev/adb-mcp/mcp mcp run …`; never `--with mcp`).
+- Measurement runs locally: `.venv/bin/python tools/measure_all.py baseline|diff …`; open overlays with `open measure/<file>.png`.
+- Normal git identity and SSH push work.
+
+## Claude-specific notes
+- Keep image previews minimal (session limits): plan in text, one batched call, one composite image per pass.
+- Provenance tag for cases/proposals: `claude`.

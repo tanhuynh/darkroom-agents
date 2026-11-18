@@ -1,12 +1,12 @@
 # Session handoff — Photoshop + Camera Raw automation (Nov 17 2026, after the recipe restructure)
 
-Read with `AGENTS.md`, `recipes/README.md` and `recipes/engine.md`; load the matching playbook per image.
+Loaded via `WORKFLOW.md` (+ your `agents/<agent>/ADAPTER.md`); load the matching playbook per image.
 
 ## Setup
 - Server/proxy from `~/dev/adb-mcp` (fork of `mikechambers/adb-mcp`; local patch = `__main__` entry points, PR sent upstream).
   `cd ~/dev/adb-mcp/adb-proxy-socket && node proxy.js` → Photoshop → UXP Dev Tools Load/Reload "Photoshop MCP Agent" → Connect.
 - Work in `~/dev/darkroom-agents` (connect it as the chat folder; measure PNGs go to `measure/`). Duplicate document, LrC closed, no open dialogs.
-- Measurement: `/Users/tanhuynh/dev/darkroom-agents/.venv/bin/python /Users/tanhuynh/dev/darkroom-agents/tools/measure_all.py baseline|diff …` (never ad-hoc scripts).
+- Measurement: `tools/measure_all.py baseline|diff …` (never ad-hoc scripts); where it runs depends on the agent (see adapter).
 
 ## Workflow (user rules in bold)
 0. **Classify + load** (README "In a session").
@@ -17,12 +17,15 @@ Read with `AGENTS.md`, `recipes/README.md` and `recipes/engine.md`; load the mat
 5. **Plan all edits in text (stored + dialog values), wait for approval, then apply as one batched call**; render → `measure_all.py diff` → adjust in follow-up passes.
 6. **Before every scripted write: read the live filter and resend ALL keys** (`$GLW*`, `$Rtch`, …); omit `$BigT`.
 7. **Remove: user paints it in a Camera Raw Filter, never in the raw SO dialog.** Save before the first scripted write after a Remove. Standalone brush work last.
-8. After the user saves: archive step (README) — case JSON + card + index row, sort and promote lessons.
-9. **Cleanup:** delete render PNGs in `measure/` (keep the folder). Commit in `darkroom-agents` with `-c user.name/-c user.email` (no git identity in the device shell); the user pushes (`git@github.com:tanhuynh/darkroom-agents.git`; SSH isn't reachable from the device shell).
+8. After the user saves: archive step (`recipes/README.md`) — case JSON + card + index row; rule changes go to `recipes/inbox/` as proposals.
+9. **Cleanup:** delete render PNGs in `measure/` (keep the folder). Commit in `darkroom-agents` (git details per adapter); the user pushes.
 
 ## Status
 - 9 landscape cases (all Bryce, Nov 2026) — `cases/index.csv`. 0 wildlife cases: `playbooks/wildlife.md` is an unverified draft.
 - Pre-Nov-16 nested recipes history: `~/dev/recipes-history.git`. Pre-restructure library: `recipes/archive/`.
+
+## Agents
+- Shared rules `WORKFLOW.md`; adapters `agents/claude/`, `agents/gemini/`, `agents/local/` (template). Inbox: `recipes/inbox/` (empty).
 
 ## Open items
 - First wildlife frames (Amboseli) to verify/revise `playbooks/wildlife.md`.

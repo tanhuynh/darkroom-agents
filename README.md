@@ -11,7 +11,7 @@ workflow and can be benchmarked on the same images.
 | Path | What |
 |---|---|
 | `AGENTS.md` | Model-neutral workflow rules (WB first → crop → FIX/TASTE critique → XMP plan → batched apply → measure). `CLAUDE.md` / `GEMINI.md` import it. |
-| `recipes/` | `ps-acr-recipes.md` (reference library), `session-handoff.md`, `crf-<image>-final.json` worked examples |
+| `recipes/` | `engine.md` (how), `playbooks/` landscape + wildlife (what: IF → DO → CHECK), `materials.md`, `cases/` (per-image cards, filter JSONs, `index.csv`), `session-handoff.md`; see `recipes/README.md` |
 | `tools/` | `measure_all.py` (baseline / diff + overlays), `wb.py`, `m.py`, `diff.py`, render helpers |
 | `comparisons/` | Model-vs-model benchmarks on the same image |
 | `docs/` | Write-ups |

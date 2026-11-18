@@ -1,0 +1,10 @@
+id,title,genre,light,subject,problems,location,filter_json
+9822,Fog hill / ridge crest,landscape,"fog, overcast","ridge crest, hoodoos",ridge lost in fog; red stratum too loud,"Bryce, 2026-11",—
+9861,Fog hoodoo vs hazy forest,landscape,"fog, overcast","hero hoodoo, forest, wall",hero 7–10 L* darker than the foggy forest behind it,"Bryce, 2026-11",—
+9785,"Storm amphitheater, light pool",landscape,"storm sky, cloud break, flat light",uniform hoodoo field,whole field equally busy/bright; no light under the cloud break,"Bryce, 2026-11",—
+9792,Near-raw fog / gorge under a branch,landscape,"fog, underexposed (exposed for sky)","hoodoo field, gorge, framing branch",land L* 11 vs sky 86; hoodoos colorless; gorge crushed,"Bryce, 2026-11",—
+9956,"Fog pano, focal hub + edge distraction",landscape,"fog, overcast, pano 2.55:1","hoodoo hub, window fin, fog mass",hub (most detail) darkest area (L* 19); dull grey fog; bright rim rubble + pale spine had the most weight,"Bryce, 2026-11-01",crf-9956-final.json
+0028,Overcast hoodoo bowl (Queen's Garden),landscape,"overcast, no fog, true color cast","white spire, hoodoo bowl, pines",global cool/magenta cast; spire not separated; dark trees,"Bryce, 2026-11-01",crf-0028-final.json
+0013,"Overcast canyon, fog gap, big foreground pine",landscape,"overcast, fog, cyan cast","shaded hero cluster, V-gap, foreground pine",cyan-green cast; hero darker than sunlit slopes; empty sky,"Bryce, 2026-11-01",crf-0013-final.json
+0044,"Sunrise amphitheater, hoodoo cluster + mesa",landscape,"sunrise, clear","hoodoo cluster, mesa cliff, foreground trees",hero needs contrast; mesa flare/haze,"Bryce, 2026-11-02",crf-0044-final.json
+0265,"Midday amphitheater, pale hero spire, rubble foreground",landscape,"midday, clear, open shade","pale spire, right boulder, rubble, mid amphitheater, pines",foreground rubble 33% of weight; murky mid-ground; blue forest shade,"Bryce, 2026-11-02",crf-0265-final.json

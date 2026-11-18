@@ -16,7 +16,7 @@ No hard-coded sample boxes. Samples are picked by tone and color:
   * red rock / shadowed rock: chroma-selected warm tones (rock-scatter reference)
   * hue histogram of C* > 8 pixels, L* percentiles, per-channel clipping
 
-Reading it (see ps-acr-recipes.md §1):
+Reading it (see recipes/playbooks/landscape.md §A and recipes/materials.md):
   * A true global cast shifts every neutral bin the same way (clouds AND pale rock AND darks).
   * Dense cloud/fog near a*≈0, b*≈0; thin cloud/fog warm at the rock's hue = scatter, leave it.
   * Cloud bases / distance slightly cool (b* < 0) is natural.

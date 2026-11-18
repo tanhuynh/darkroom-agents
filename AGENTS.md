@@ -1,7 +1,10 @@
 # Photoshop AI Editing Assistant (`darkroom-agents`)
 
-@./recipes/ps-acr-recipes.md
+@./recipes/README.md
+@./recipes/engine.md
 @./recipes/session-handoff.md
+
+Genre rules are **not** auto-loaded: after classifying the image (workflow step 0), read `recipes/playbooks/<genre>.md`, the relevant `recipes/materials.md` entries, and the 2–3 closest `recipes/cases/` from `recipes/cases/index.csv`.
 
 ## 1. Environment, Safety & Session Preconditions
 - **Workspace Root:** `~/dev/darkroom-agents` (model-neutral rules in `AGENTS.md`; `CLAUDE.md` / `GEMINI.md` import it). The Photoshop MCP server lives separately in `~/dev/adb-mcp` (fork of `mikechambers/adb-mcp`) — don't edit workflow files there.
@@ -20,7 +23,7 @@
 - **`wb.py`:** White-balance check—computes median `a*`, `b*`, and hue across dynamic tone and color bins from a 16-bit sRGB render, plus `L*` percentiles.
 - **`m.py`:** Loads a render, computes `L*`, chroma, and local detail, and prints a per-region table (tone, rock fraction, rock detail, rock chroma, visual weight).
 - **`diff.py`:** Compares two renders—outputs per-region `ΔL*`, detail change (`%`), chroma change, and writes a `|ΔL| × 15` PNG to `./measure/` visualizing where the effective mask landed. Always pass the 3rd output filename argument.
-- **Worked Examples:** Reference `./recipes/crf-<id>-final.json` files as structural patterns to learn from rather than presets to paste blindly (masks are tied to each image's specific geometry).
+- **Worked Examples:** `./recipes/cases/<id>.md` + `crf-<id>-final.json` are structural patterns to learn from, not presets to paste blindly (masks are tied to each image's geometry).
 
 ## Unified Measurement & Visual Proof Script
 - Always use `/Users/tanhuynh/dev/darkroom-agents/.venv/bin/python /Users/tanhuynh/dev/darkroom-agents/tools/measure_all.py` instead of writing ad-hoc measurement scripts or calling `wb.py`, `m.py`, and `diff.py` separately:
@@ -44,13 +47,9 @@
    - **Plan in Text, Batch Once:** Present the edit plan in text first, wait for explicit user approval, and apply approved edits as a single batched call.
 
 ## 4. Aesthetic Restraint & Image Critique Standards
-- **Milder, Center-Guiding Philosophy:** Favor natural, restrained tonal sculpting that draws the viewer's eye toward the center of the frame rather than high global contrast.
-- **Guide the Eye via Edge Restraint:** When bright or heavily textured foreground corners/edges pull visual weight away from the hero subject, calm those edges (`LocalExposure2012` `−0.06` to `−0.08` stored, `LocalTexture` `−0.10` to `−0.15`, `LocalHighlights2012` `−0.15`) rather than over-lifting the hero.
-- **Restrained Hero Lift & Crispness Over Brightness:** Cap first-pass hero luminance lifts around `+1.5` to `+2.5 ΔL*` (`LocalExposure2012` `~+0.05` stored / `+0.20 EV` dialog) and use tight radials (`Feather: 55–60`) with `Texture` (`+0.15` to `+0.22`) and `Clarity` (`+0.15` to `+0.22`) rather than wide, heavily feathered ovals (`Feather: 75+`) or overlapping positive exposure lifts.
-- **Protect Aerial Perspective (Zero Far-Rim Dehaze):** Never dehaze or apply Clarity to the distant background plateau/ridge (`0.0 ΔL*` target on far ridges). Increasing haze with distance creates scale.
-- **Neutralize Blue Shade Locally:** Use a dark-tones Luminance Range mask (`0 0 0.14 0.24`) with `LocalTemperature` (`~0.15 b*` shift per `0.01` stored unit; e.g., `+0.25` to `+0.30` stored) to remove cold blue skylight casts (`b* ≈ −12`) from deep forest shade without warming sunlit foliage or lifting rock crevices.
-- **Subject edit + structure pass (from the 0265 Claude-vs-Gemini merge):** After the subject edit (hero crispness, calm the loud edges, fix local casts), always add a structure pass on the mid-ground. (1) **Lift the midtone/lit faces, never the shadows:** Luminance Range `0.16/0.26/0.55/0.70` (≈ L* 16–70) with Exposure +0.08…+0.10 stored, Shadows +0.10…+0.20 — a darks range (`0.05/0.12/0.45/0.60`) only fills the crevices and flattens the scene. (2) **Clarity +0.15 *and* Texture +0.15 on the same midtone range** (Clarity alone on shaded faces does ~nothing). (3) **Keep crevices at or below their original L*** — face-vs-crevice separation is what reads as depth/detail. Don't add Shadows to a color-only fix (e.g., the shadow warm-up): Temperature alone does it. (4) Firmer cloud modeling is fine: Highlights −0.40, Exposure −0.05, Texture +0.15 on a top ramp ∩ bright range. Still never dehaze/clarify the distant rim.
-- **Measure, Don't Just Eyeball:** Cross-check visual readbacks against `measure_all.py` (which unifies `wb.py`, `m.py`, `diff.py`, and visual proof overlays into one call) metrics (`L*`, `a*`/`b*`, chroma, visual weight) to distinguish true global casts from natural light scatter and verify zero highlight/shadow clipping.
+- **Genre rules live in the playbooks** (`recipes/playbooks/landscape.md`, `recipes/playbooks/wildlife.md`) as IF measurement → DO → CHECK. Load the matching one; for mixed scenes (animals in a big landscape) use both.
+- **Restraint:** natural, non-destructive tonal sculpting that guides the eye to the subject; crispness over brightness for the hero; calm loud edges rather than over-lifting the hero. The user likes some saturation and finds over-cautious edits flat — answer "flat" with structure (face-vs-shadow separation), not global contrast.
+- **Measure, Don't Just Eyeball:** cross-check visual readbacks against `measure_all.py` metrics (`L*`, `a*`/`b*`, chroma, detail, visual weight) to separate true casts from scatter/local shade and to verify clipping. Weight ratios are guides, not targets — stop when the eye lands on the subject.
 
 ## 5. Visual Verification Overlays & Speed Discipline (Mandatory)
 - **Generate Visual Proof Overlays on Every Pass:**
@@ -61,10 +60,11 @@
   - Run **`measure_all.py` once** per checkpoint (it unifies `wb.py`, `m.py`, `diff.py`, and the visual overlays) rather than spawning multiple sequential shell calls.
   - Use a single `2000px` long-edge sRGB render per checkpoint (plus one 1:1 crop of the hero subject for Texture/Clarity checks) instead of repeatedly exporting full 45 MP files.
 
-## 6. Standard 6-Step Session Workflow
+## 6. Standard Session Workflow
+0. **Classify & Load:** genre, light, subject, main problems (+ new materials) → load the matching playbook, materials, and 2–3 closest cases (`recipes/README.md`).
 1. **White Balance Check First (Always):** Pull a `2000px` baseline render and run `measure_all.py baseline <render.png>`. Separate true global cast from natural scatter and local shadow blue casts. Have user fix global WB in the RAW Smart Object only if needed.
 2. **Composition & Crop:** Compute detail and visual weight maps, generate `crop_preview.png` with a rule-of-thirds grid overlay, and apply approved crops non-destructively (`delete: false`).
 3. **Structured Critique (`FIX` vs. `TASTE`):** Highlight what already works, then list the top 2–3 issues labeled explicitly as **`FIX`** (technical flaws) vs. **`TASTE`** (subjective creative choices).
 4. **Plan in Text & Wait for Approval:** Write the full numerical Camera Raw XMP edit plan (showing both stored XMP values and dialog equivalents), then pause for explicit user confirmation.
 5. **Batched Execution & Quantitative Verification:** Apply approved edits in one batched `batchPlay` call, export a `2000px` sRGB render, and run `measure_all.py diff <before.png> <after.png> --hero …` (regional table + `before_after.png`, `diffmap.png`, `dbmap.png`, `hero_zoom.png`) in one pass, opening the visual composite automatically.
-6. **Save & Archive Recipe:** Once the user saves the TIFF next to the source file, export the final filter XMP to `./recipes/crf-<image>-final.json`, update `ps-acr-recipes.md` / `session-handoff.md`, and clean up temporary render files in `./measure/`.
+6. **Save & Archive Recipe:** Once the user saves the TIFF next to the source file, write `./recipes/cases/crf-<image>-final.json` + `cases/<image>.md` + an `index.csv` row, then **sort the lessons** (engine / materials / playbook — promote to a playbook only if physics or seen on ≥2 cases; contradictions edit the existing rule) per `recipes/README.md`, update `session-handoff.md` status, and clean up `./measure/`.

@@ -21,5 +21,7 @@ Read with `WORKFLOW.md`. Only Claude-specific plumbing lives here. Two ways Clau
 Agent-specific habits and quirks only — editing knowledge goes to `recipes/inbox/`.
 - Tends toward restraint: lifts that are too timid on the mid-ground (0265 pass 2: +1% detail) — apply the structure pass (landscape §E) by default.
 - Has made calibration slips in summaries (LocalTemperature once reported as 0.025 instead of ~0.15 b\*/0.01) — quote calibrations from `engine.md` §8, not from memory.
+- Trusts a tool's `SUCCESS` echo over the state it should have produced (0025: `convertToProfile` echoed SUCCESS while a dialog was cancelled, so the baseline stayed ProPhoto) — read the state back (`get profile`, layer/filter) before measuring, and diff an unchanged re-render first.
+- Announces causes from uncontrolled numbers (0025: blamed Clarity / a mask "leak" for a shift that was a render error) — run the control before naming a cause, and say "hypothesis" until a control confirms it.
 - Keep image previews minimal (session limits): plan in text, one batched call, one composite image per pass.
 - Provenance tag for cases/proposals: `claude`.

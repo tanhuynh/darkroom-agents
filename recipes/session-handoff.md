@@ -21,14 +21,15 @@ Loaded via `WORKFLOW.md` (+ your `agents/<agent>/ADAPTER.md`); load the matching
 9. **Cleanup:** delete render PNGs in `measure/` (keep the folder). Commit in `darkroom-agents` (git details per adapter); the user pushes.
 
 ## Status
-- 9 landscape cases (all Bryce, Nov 2026) — `cases/index.csv`. 0 wildlife cases: `playbooks/wildlife.md` is an unverified draft.
+- 9 landscape cases (all Bryce, Nov 2026) + 1 wildlife case (0025, grey crowned crane, Nov 17 2026) — `cases/index.csv`. `playbooks/wildlife.md` is still a draft: 0025 supports §A crop and §B.1 Texture only, as *(1 case)*.
+- **Render recipe changed (pending merge):** save the ProPhoto 16-bit PNG and convert with `tools/prophoto_to_srgb.py`; `convertToProfile` can pop a dialog and echo SUCCESS when it is cancelled (see inbox). Until merged, verify the profile (`get profile`) before measuring.
 - Pre-Nov-16 nested recipes history: `~/dev/recipes-history.git`. Pre-restructure library: `recipes/archive/`.
 
 ## Agents
-- Shared rules `WORKFLOW.md`; adapters `agents/claude/`, `agents/gemini/`, `agents/local/` (template). Inbox: `recipes/inbox/` (empty).
+- Shared rules `WORKFLOW.md`; adapters `agents/claude/`, `agents/gemini/`, `agents/local/` (template). Inbox: `recipes/inbox/` — 5 proposals from 0025 (render-prophoto, radial-maskinverted, cloned-ai-mask, bisect-protocol, calibrations) awaiting review.
 
 ## Open items
-- First wildlife frames (Amboseli) to verify/revise `playbooks/wildlife.md`.
+- More wildlife frames to verify/revise `playbooks/wildlife.md` (0025 left open: eye correction unverified at 1:1; Select Subject + Remove are user steps, the filter JSON cannot replay `$BigT`).
 - `measure_all.py` wildlife metrics: subject vs background separation across the mask edge, background busyness, crop/lead-room simulator.
 - Not yet observed: standalone Brush XMP, Depth masks, Lens Blur via script.
 - `acr.py` / `acr_band.py` XMP builders were never committed — rebuild in `tools/` when next needed.

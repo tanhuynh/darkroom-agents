@@ -1,0 +1,15 @@
+# Calibrations from the first wildlife case (dry-grass background, black/grey plumage subject)
+- **Agent:** claude
+- **Target:** engine.md §8 (Calibrations) — add rows; wildlife.md §B/§C only after the user's final edit is archived
+- **Type:** engine fact
+- **Rule:** starting points (stored units, 2000 px renders, converted sRGB; measure → adjust):
+  | Control | Calibration | Mask / material |
+  |---|---|---|
+  | `LocalExposure2012` −0.05 | **−3.9 L\*** (L\* ~46 → ~42), C\* −0.7, b\* −0.6 | inverted subject, dry grass — **~2× the −0.13 ≈ −5 L\* burn estimate**, so on bright-ish midtones start at −0.03 |
+  | `LocalTexture` −0.30 (+ Clarity −0.10) | grass detail **−28…−36%** (cells with only grass); cells containing bird edges/stems −7…−14% | inverted subject |
+  | Subject `LocalShadows2012` (Exp +0.08, Texture +0.20, Clarity +0.05 on top) | +0.06 → deep darks (L\* < 15) **+1.7**; +0.10 → **+2.3**; +0.15 → **+3.0** (detail +33…+42%) | subject, black/grey plumage |
+  | Vignette `LocalExposure2012` −0.06 | **−3.2 L\*** at the corners, ≈ 0 at the centre (feather 55, ellipse box larger than the frame, `MaskInverted="true"`) | radial minus subject |
+  | Negative Clarity (−0.15 → 0) on the background | no change in L\* (0.00–0.03) and ~5 points of detail | inverted subject |
+- **Evidence:** case 0025 pass 1–3 vs the corrected original (`measure/0025_before_srgb.png`), see the render proposal for why the earlier numbers were wrong. Detail columns come from `measure_all.py diff` Det % per 3×3 cell.
+- **Conflicts with:** engine.md §8 "burns need ~1.3× the magnitude of an equal lift (−0.13 vs +0.09)" — not contradicted for bright rock, but grass at L\* 46 burned ~2× harder than that estimate predicts.
+- **Scope:** seen on 1 case (0025); the user's final edit may change the values — keep as starting points, mark *(1 case)*. The wildlife playbook's background-quieting rule (§B.1: Texture −0.20…−0.40, Clarity −0.10…−0.20) is consistent with the Texture row.

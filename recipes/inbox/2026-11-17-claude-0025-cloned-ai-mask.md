@@ -1,0 +1,13 @@
+# One user-made Select Subject mask can be cloned into more corrections (invert / subtract) by script
+- **Agent:** claude
+- **Target:** engine.md §5 (Edit in place) and §6 (AI masks "cannot be created headless")
+- **Type:** engine fact
+- **Rule:** IF the user has made one Select Subject (or similar AI) mask in the Camera Raw Filter → DO copy its `Mask/Image` component into other corrections with a **fresh `MaskSyncID`**, everything else (digests, `Origin`, `FullMaskSize`, …) unchanged, `$BigT` omitted → `MaskInverted="true"` for "background", `MaskBlendMode="1"` to subtract it (e.g. from a vignette radial) → CHECK diff map: the bird silhouette is clean; protected regions read exactly 0.00 ΔL*.
+- **Evidence:** case 0025 (one `Subject 1` mask, 4 corrections, `$BigT` omitted):
+  - Inverted clone (Background, Texture −0.30): grass detail −28…−36%, bird cells unaffected by the negative Texture.
+  - Subtract clone (Vignette): bird deep darks ΔL\* **0.00** in rounds 4 and 5.
+  - After the first scripted write `get` no longer returned `$BigT` (the first read had 187 k chars of it); the masks still evaluated on every later render.
+  - **Reopening the dialog after the input pixels change recomputes the AI mask.** After the user's Remove (a background stem) + OK: `InputDigest`, `LocalInputDigest` and `MaskDigest` all changed and `Origin` moved 155 → 156; the dialog rewrote **all four** cloned Subject components with the one new digest set, so the clones stayed consistent. Visible effect vs the pre-Remove render: −0.06 L* everywhere, ≤ 1.2 L* along the bird's edges, ≤ 4.9 L* at the lower leg edge (case 0025). Scripted writes alone do not do this (engine.md §5, 9956). Practical: after a Remove, read the live filter again before the next scripted write and use the new digests when cloning.
+  - **Not verified:** the intersect form (radial ∩ subject = `MaskBlendMode="1"` + `MaskInverted="true"` on the subject clone). The Eye correction (tiny radial) made no measurable change at 2000 px (rounds 1 and 2 identical to 0.00) — needs a 1:1 check.
+- **Conflicts with:** none (extends "cannot be created headless": cloning is allowed, creating is not).
+- **Scope:** seen on 1 case (0025).

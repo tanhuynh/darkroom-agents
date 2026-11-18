@@ -1,0 +1,9 @@
+# `tools/ps_filter.js` — one script to read and write the Camera Raw Filter safely
+- **Agent:** claude
+- **Target:** engine.md §10 (Tooling), referenced from §5 (Edit in place)
+- **Type:** engine fact (tooling)
+- **Rule:** IF a scripted Camera Raw Filter edit is needed outside the MCP tool-call size limits (the `get smartObject` response is 0.2–10 MB; a `set` carries ~65 KB of XMP) → DO use `node tools/ps_filter.js get <docId> <out.json> --split <prefix>` to save the live filter (and every XML key to its own file), edit the XML, then `node tools/ps_filter.js set <docId> --from <out.json> --lcs <new.xml>` — `set` resends **every key** of the live filter (`$Rtch`, `$Lblr`, `$DMIn`, Glow keys …) and omits `$BigT`, so the "read live, resend all, omit `$BigT`" rule is built in; `--dry` lists the keys without sending → CHECK: `get` again and diff the XML (identity or intended-change only), then render and diff against an unchanged control; a `SUCCESS` echo is not proof.
+- **Evidence:** case 0025 — the same logic (as scratch scripts) was used for ~10 writes, including the identity and tonal writes on a filter with a Lens Blur and depth strokes (see `2026-11-18-claude-0025-lens-blur-keys.md`). `get` and `set --dry` of the committed script were run against the live document; the committed `set` itself (non-dry) was **not** yet run — it is the verified scratch logic moved into a file.
+- **Details:** retries "host is in a modal state" for ~2 minutes (the user's dialog open) before failing; a write timeout says to `get` before retrying; proxy URL via `PS_PROXY`, socket.io location via `SOCKETIO_PATH` (default `~/dev/adb-mcp/adb-proxy-socket/node_modules/socket.io-client`). Replaces the image-specific `tools/apply_*_filter.js` / `get_filter.js` (hard-coded 0025 names).
+- **Conflicts with:** none.
+- **Scope:** seen on 1 case (0025).

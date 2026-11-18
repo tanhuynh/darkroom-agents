@@ -28,7 +28,7 @@
 - Pick an image with a finished case (e.g. 0265). Give the new agent the original and the same instructions.
 - Compare with `tools/measure_all.py diff original.png <agent>.png` and against the case's result; write it up in
   `comparisons/<id>-<agent>-vs-<other>.md` (see `comparisons/0265-claude-vs-gemini.md`).
-- Note strengths/weaknesses in its adapter ("Conformance rules"); route good ideas through `recipes/inbox/`.
+- Note strengths/weaknesses in the **Known tendencies** section of its adapter (agent-specific only); route good ideas through `recipes/inbox/`.
 
 ## 5. Write policy (same for every agent)
 - Cases (`recipes/cases/…`) directly; rule/material/engine changes only as `recipes/inbox/` proposals.
@@ -42,4 +42,5 @@
 
 ## Gemini (already set up)
 - `GEMINI.md` → `WORKFLOW.md` + `agents/gemini/ADAPTER.md`. In Gemini CLI from the repo root: `/memory refresh`, then `/memory show` — both files must be listed.
-- Its old habit of editing the shared rules directly is replaced by inbox proposals (adapter "Conformance rules").
+- Its old habit of editing the shared rules directly is replaced by inbox proposals; its own habits go in the adapter's **Known tendencies**.
+- Benchmark edits: `cases/<id>-gemini.md` + `crf-<id>-gemini.json` (`role=benchmark`). A per-agent lessons file was considered and declined (2026-11-17): calibrations and editing rules are agent-independent, and two copies drift (the 0.025 vs 0.15 `LocalTemperature` mix-up had to be fixed in three places).

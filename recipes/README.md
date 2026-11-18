@@ -5,7 +5,7 @@
 | **Engine** (how) | `engine.md` | Photoshop/Camera Raw/MCP behavior is learned (schema, calibrations, gotchas) |
 | **Playbooks** (what) | `playbooks/landscape.md`, `playbooks/wildlife.md` | a principle is confirmed on ≥2 images, or is clearly physics |
 | **Materials** | `materials.md` | a new surface/place is met (snow, water, grass, fur…) |
-| **Cases** (episodes) | `cases/<id>.md`, `cases/crf-<id>-final.json`, `cases/index.csv` | every finished image |
+| **Cases** (episodes) | `cases/<id>.md` + `crf-<id>-final.json` (saved edit), `cases/<id>-<agent>.md` + `crf-<id>-<agent>.json` (benchmarks), `cases/index.csv` (`agent`, `role`) | every finished image / benchmark |
 | **Inbox** (proposals) | `inbox/` | an agent learns something it wants added to the shared layers — reviewed before merge |
 | Archive | `archive/ps-acr-recipes-2026-11-16.md` | never — the pre-restructure log, kept for reference |
 

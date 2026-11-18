@@ -5,7 +5,8 @@
 2. Agent writes, directly:
    - `recipes/cases/crf-<id>-final.json` — the final filter command (read live, all keys) + any manual raw-SO settings the user reports (WB, Calibration, raw Remove).
    - `recipes/cases/<id>.md` — tags table (genre, light, subject, problems, location, agent) + what worked / what failed, with measured numbers.
-   - a row in `recipes/cases/index.csv`.
+   - a row in `recipes/cases/index.csv` with `agent` and `role=final`.
+   - Alternative or benchmark edits of the same image: `cases/<id>-<agent>.md` + `crf-<id>-<agent>.json`, `role=benchmark`.
 3. Agent sorts the lessons:
    - image-specific → stays in the case card;
    - anything for `engine.md`, `materials.md` or a playbook → a **proposal** in `recipes/inbox/` (template in `recipes/inbox/README.md`).
@@ -26,6 +27,9 @@
 ## Adding a genre
 Copy the structure of `recipes/playbooks/landscape.md` (Default plan → sections of IF → DO → CHECK → critique standards),
 start it as a ⚠️ draft like `wildlife.md`, and add the genre value to `cases/index.csv`.
+
+## Where agent-specific knowledge goes
+Only an agent's *own* habits, failure modes and tool quirks → the **Known tendencies** section of its adapter (the agent may edit that section directly). Everything about editing itself stays shared.
 
 ## What not to do
 - Don't append per-image logs to the playbooks (that's what cases are for).

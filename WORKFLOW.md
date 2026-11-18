@@ -38,9 +38,12 @@ AI-assisted RAW editing in Photoshop/Camera Raw for wildlife and landscape (Cano
 ## 5. Writing to the knowledge base
 | What | Where | How |
 |---|---|---|
-| Finished image | `recipes/cases/<id>.md`, `cases/crf-<id>-final.json`, row in `cases/index.csv` | write directly |
+| Finished image (the edit the user saved) | `recipes/cases/<id>.md` + `cases/crf-<id>-final.json`, row in `cases/index.csv` (`agent`, `role=final`) | write directly |
+| Alternative / benchmark edit of the same image | `recipes/cases/<id>-<agent>.md` + `cases/crf-<id>-<agent>.json`, row with `role=benchmark` | write directly |
+| Your own tendencies (habits, failure modes, tool quirks of *your* agent) | the **Known tendencies** section of your own `agents/<agent>/ADAPTER.md` | write directly |
 | New/changed rule, material note, engine fact | `recipes/inbox/<date>-<agent>-<case>.md` | **propose** (template in `recipes/inbox/README.md`); merged only after review |
 | Status / open items | `recipes/session-handoff.md` | write directly |
 - Never edit `WORKFLOW.md`, another agent's adapter, or the playbooks/materials/engine directly unless the user explicitly asks you to merge.
+- Editing knowledge (how Camera Raw responds, calibrations, rules about light/materials) is the same for every agent — it never goes into an adapter or a per-agent lessons file; propose it via the inbox.
 - Tag provenance: cases and proposals name the agent (`claude`, `gemini`, `local:<model>`).
 - Commit in `darkroom-agents` only; the user pushes.

@@ -17,6 +17,9 @@ Read with `WORKFLOW.md`. Only Claude-specific plumbing lives here. Two ways Clau
 - Measurement runs locally: `.venv/bin/python tools/measure_all.py baseline|diff …`; open overlays with `open measure/<file>.png`.
 - Normal git identity and SSH push work.
 
-## Claude-specific notes
+## Known tendencies (Claude maintains this section)
+Agent-specific habits and quirks only — editing knowledge goes to `recipes/inbox/`.
+- Tends toward restraint: lifts that are too timid on the mid-ground (0265 pass 2: +1% detail) — apply the structure pass (landscape §E) by default.
+- Has made calibration slips in summaries (LocalTemperature once reported as 0.025 instead of ~0.15 b\*/0.01) — quote calibrations from `engine.md` §8, not from memory.
 - Keep image previews minimal (session limits): plan in text, one batched call, one composite image per pass.
 - Provenance tag for cases/proposals: `claude`.

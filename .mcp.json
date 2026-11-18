@@ -1,0 +1,26 @@
+{
+    "mcpServers": {
+        "photoshop": {
+            "command": "uv",
+            "args": [
+                "run",
+                "--directory",
+                "/Users/tanhuynh/dev/adb-mcp/mcp",
+                "mcp",
+                "run",
+                "ps-mcp.py"
+            ]
+        },
+        "photoshop-batch-play": {
+            "command": "uv",
+            "args": [
+                "run",
+                "--directory",
+                "/Users/tanhuynh/dev/adb-mcp/mcp",
+                "mcp",
+                "run",
+                "ps-batch-play.py"
+            ]
+        }
+    }
+}

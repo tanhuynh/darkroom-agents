@@ -21,16 +21,18 @@ Loaded via `WORKFLOW.md` (+ your `agents/<agent>/ADAPTER.md`); load the matching
 9. **Cleanup:** delete render PNGs in `measure/` (keep the folder). Commit in `darkroom-agents` (git details per adapter); the user pushes.
 
 ## Status
-- 9 landscape cases (all Bryce, Nov 2026) + 1 wildlife case (0025, grey crowned crane, Nov 17–18 2026, saved as `…/2026-10-31/_52_0025-2-Edit.tif`) — `cases/index.csv`. `playbooks/wildlife.md` is still a draft: 0025 supports §A crop, §B.1 background quieting, §B.2 Lens Blur order and §E Push-Pull (pull aimed at the heaviest background; push temperature) only, as *(1 case)*. The 0025 card/JSON are final (7 corrections + Remove + Lens Blur).
+- 9 landscape cases (all Bryce, Nov 2026) + 2 wildlife cases — 0025 (grey crowned crane, saved `…/2026-10-31/_52_0025-2-Edit.tif`) and 9532 (servals tugging a fish, Nov 18 2026; **archived before the TIFF was saved: path and final size to confirm**) — `cases/index.csv`. `playbooks/wildlife.md` is still a draft: every rule is *(1 case)* (§A crop, §B.1/§B.2 background, §E Push-Pull from 0025; §F multi-subject, §B.1 desaturation, accent calm from 9532).
 - **Render recipe changed (pending merge):** save the ProPhoto 16-bit PNG and convert with `tools/prophoto_to_srgb.py`; `convertToProfile` can pop a dialog and echo SUCCESS when it is cancelled (see inbox). Until merged, verify the profile (`get profile`) before measuring.
 - Pre-Nov-16 nested recipes history: `~/dev/recipes-history.git`. Pre-restructure library: `recipes/archive/`.
 
 ## Agents
-- Shared rules `WORKFLOW.md`; adapters `agents/claude/`, `agents/gemini/`, `agents/local/` (template). Inbox: `recipes/inbox/` — 6 proposals from 0025 (render-prophoto, radial-maskinverted, cloned-ai-mask, bisect-protocol, calibrations, lens-blur-keys) awaiting review.
+- Shared rules `WORKFLOW.md`; adapters `agents/claude/`, `agents/gemini/`, `agents/local/` (template). Inbox: `recipes/inbox/` — 9 proposals awaiting review: 0025 (render-prophoto, radial-maskinverted, cloned-ai-mask, bisect-protocol, calibrations, lens-blur-keys, ps-filter-tool) and 9532 (crop-tool-commit, calibrations, wildlife-composition).
 
 ## Open items
 - More wildlife frames to verify/revise `playbooks/wildlife.md` (0025: Eye, Push-subtract and Lens Blur interaction are now checked; the saved TIFF loses fine feather tips to the Lens Blur — accepted as good enough; next time paint stray tips into the subject depth before saving; Select Subject, Remove and Lens Blur are user steps, the filter JSON cannot replay `$BigT`).
 - `tools/apply_pushpull_filter.js`, `apply_step4_filter.js`, `build_pushpull*_xmp.py`, `get_filter.js`, `render_prophoto.js` are Gemini's 0025 scratch scripts (image-specific, stale mask digests), committed as examples; `tools/ps_filter.js` is the general read/write tool that replaces them.
+- 9532: confirm the saved TIFF's size (expected 7784×4865, x 0–7784, y 150–5015) and path; if Photoshop's Crop tool box is pending, scripted commands can revert the crop — Esc first (inbox).
+- `measure_all.py` / `wb.py` cannot sample a patch (WB table is whole-frame; `wb.py` is landscape-oriented) — wildlife WB needs neutral-patch sampling and region stats (heads vs bodies vs background, accent chroma/clipping).
 - `measure_all.py` wildlife metrics: subject vs background separation across the mask edge, background busyness, crop/lead-room simulator.
 - Not yet observed: standalone Brush XMP, Depth *masks* (Lens Blur depth corrections are now seen: `$Lblr`, `$DMIn`, `DepthBasedCorrections` — see inbox). Lens Blur can be toggled by script (`crs:Active` in `$Lblr`) but not created headless.
 - `acr.py` / `acr_band.py` XMP builders were never committed — rebuild in `tools/` when next needed.

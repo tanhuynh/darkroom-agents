@@ -1,4 +1,4 @@
-# Wildlife playbook — ⚠️ DRAFT (1 wildlife case so far: 0025)
+# Wildlife playbook — ⚠️ DRAFT (2 wildlife cases so far: 0025, 9532)
 
 Built from standard wildlife-editing practice plus the user's stated habits; every rule is a hypothesis until a case
 confirms it. Same format as the landscape playbook: **IF → DO → CHECK**, stored XMP units, cite cases as they accrue.
@@ -33,7 +33,7 @@ Typical problem profile (user): subject far and small in the frame, background r
 ## B. Background — quiet it, cheapest fix first
 Measure first: background busyness (detail energy outside the subject mask), bright hotspots (L* > subject's p95), distracting
 color patches (C* outliers), lines crossing the subject (twigs, grass stems).
-1. **Tone it down:** inverted subject mask: Exp −0.05…−0.10, Highlights −0.20 (hotspots), Sat −0.05…−0.15, **Texture −0.20…−0.40, Clarity −0.10…−0.20**
+1. **Tone it down:** inverted subject mask: Exp −0.05…−0.10, Highlights −0.20 (hotspots), Sat −0.05…−0.15 (**−0.20 when fur and ground share a hue: C\* −29% on grass/sand, 9532**; check an accent such as red meat is inside the Select Subject mask), **Texture −0.20…−0.40, Clarity −0.10…−0.20**
    → CHECK: background detail −30% or more, subject untouched (diff map), no halo at the mask edge.
 2. **Blur it:** Camera Raw **Lens Blur** (dialog-only → user step) when the background is still busy after step 1. Watch the mask edge on fur/feathers. *(1 case: 0025)*
    - **Order:** default is Lens Blur **last**, after the scripted passes are approved — it changes how the other effects read, so judge them with the blur in place. A later scripted write is safe **if it resends every key**, including `$Lblr`, `$DMIn` and the depth corrections (`DepthBasedCorrections` in `$LCs`), with `$BigT` omitted. Verified on 0025 on a saved copy: an identity write and a tonal write (Pull off, Pull Copy −0.10 → −0.06) left the depth block, `$Lblr` and `$DMIn` byte-identical and the blurred background's detail unchanged (±0.4%); the tonal change landed exactly as before. *(1 case; a crash/restart can still lose a pass — read the live filter first.)*
@@ -41,7 +41,7 @@ color patches (C* outliers), lines crossing the subject (twigs, grass stems).
    - **Edge check at 1:1 (do it):** the blur follows its own depth map, not the Select Subject mask. On 0025 the neck edge was clean but **fine feather tips and stray hairs that stick out past the subject were blurred away** (feather skirt, a long stray hair on the neck). Paint those into the subject depth (the depth refinement brush) before saving. A diff of blur-on vs blur-off at 1:1 (|ΔL\*|×15) shows exactly where it bites.
    - **Mask:** reopening the dialog for the blur recomputed the Select Subject mask (digests and Origin changed; bird tone changed ≤ 0.3 L\*).
 3. **Remove specific distractions** (bright twig, sign, another animal's leg) — user paints **Remove in the Camera Raw Filter** (readable `$Rtch`). Do it before scripted passes; save first.
-4. **Vignette** (radial minus subject): Exp −0.05…−0.10 at the corners — last, light.
+4. **Vignette** (radial minus subject): Exp −0.05…−0.10 at the corners — last, light. *(single subject; for a two-face action use the head-centred vignette in §F, which does not subtract the subject — 9532)*
 - Prefer quieting over replacing; never generative background replacement (non-destructive rule).
 - **CHECK:** subject-vs-background separation up: ΔL* (subject − bg) and Δdetail across the mask edge both increase; subject weight > any background region.
 
@@ -70,6 +70,18 @@ Creates atmospheric depth and directional light flow in flat scenes by pulling b
    - **0025 evidence:** radial L 0.22 R 1.02 T −0.45 B 0.55, feather 88, Exp +0.03 / Highlights +0.05 → head and beak +1.4 L\*, upper neck +0.7, chest 0.00, no seam at 1:1. **But** the grass in the upper right rose +2.3 L\*, more than the head, so the bird-to-grass gap on the lit side did not widen; the gain is directional light, not separation. **Subtracting the subject was tested and is worse:** the head gets +0.3 L\* instead of +1.3 while the grass stays +2.3 (so the gap shrinks); don't. If separation is the goal, make the radial smaller around the head.
 - **CHECK:** Light wraps naturally onto the subject's lit side without a cutout seam; shadow side is anchored without cyan discoloration; no milky haze or clipped highlights; bird-vs-grass gap (ΔL\*, subject minus background) did not shrink on the lit side; pure-grass cells ≥ ~L\* 38.
 
+## F. Multi-subject interaction (a tug, a hand-over, two faces) *(1 case: 9532)*
+Goal: the eye goes to the faces/action first, not to a bright body or the foreground.
+1. **Measure by region, not by 3×3 cell** (cells mix animal and grass): heads vs bodies vs the brightest background area. In 9532 the heads (L\* 30–33) were darker than the sand (L\* 42): a vignette alone cannot fix that.
+2. **Head light** — radial **inside** over both heads and the object between them (feather ~90), Exp +0.10…+0.14, Shadows +0.10 (for a dark object), **no subject subtraction** → heads ≈ +5 L\* on top of the subject lift.
+3. **Head vignette** — radial centred on the same ellipse, `MaskInverted="true"`, Exp −0.06, **no subject subtraction** (the bodies fall off with distance), no Saturation on it (keep the animals' colour).
+4. **Pull** at the brightest large background (e.g. sand): gradient from the action toward it, minus subject, Exp −0.05, Highlights −0.08, Texture −0.15; floor: pure ground/grass ≥ ~L\* 28.
+5. **Accents** (red meat): a subject lift raises chroma with brightness (meat C\* p95 +21%, red channel 0.97) → radial **calm** on the accent: Saturation −0.25, Highlights −0.15; check chroma p95 near the original and 0% of pixels ≥ 0.98.
+6. **Eyes:** skip Eye radials when the eyes are dark slits in profile.
+- **CHECK:** both heads are the brightest regions; accents not clipped; animals' chroma unchanged or up; headroom ≥ ~12% above the ears, ≥ ~8% under the lowest subject; side edges cut animals at about the same place.
+- **Do not** extend the frame with generative fill (invents anatomy, softer pixels, outside the one-filter setup).
+
 ## Cases
 - **0025** — grey crowned crane, dry savanna grass, flat overcast (`cases/0025.md`). Supports §A crop (lead room), §B.1 background quieting (incl. Highlights/Saturation), §B.2 Lens Blur order, §E Pull/Push — each *(1 case)*. §C Eye was not measurable at 2000 px.
+- **9532** — two servals tugging a fish, a third watching, flat overcast (`cases/9532.md`). Supports §B.1 (desaturate the background when fur and ground share a hue), §A (headroom, symmetric edge cuts), §F (head light + vignette, accent calm) — each *(1 case)*. §C Eye radials were useless on dark eyes.
 - Next: 2–3 more frames (e.g. Amboseli elephants with Kilimanjaro, a tight portrait, a bird on a busy perch); mark each rule ✅ / revise as they are confirmed, and drop *(1 case)* only on a second case.

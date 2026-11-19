@@ -4,7 +4,43 @@ Genre- and location-free mechanics: setup, measurement, batchPlay, Camera Raw XM
 *What* to edit lives in `playbooks/`; material behavior in `materials.md`; worked examples in `cases/`.
 Verified on Camera Raw 19.0, Photoshop (Beta, Developer Mode), Canon R5 II CR3 / pano DNG, Nov 2026.
 
-## 1. Session setup
+## Layers — what survives a connector swap
+Every section carries a tag. **DURABLE** = true for any way of reaching Photoshop (Camera Raw behavior, XMP, calibrations,
+measurement). **ACCESS** = specific to the current connector, adb-mcp (UXP plugin, proxy, MCP tools, `batchPlay`, the
+descriptor key encoding such as `$LCs` / `$BigT` / `filterFX`). Swapping the connector (e.g. Adobe's own MCP) = rewrite the ACCESS
+sections + the "Photoshop access" line of each adapter + the MCP config files; nothing else. Playbooks, `materials.md` and
+`WORKFLOW.md` ask for *capabilities* (C1–C8), never for tools. Section numbers are stable (other files cite them).
+
+| § | Topic | Layer |
+|---|---|---|
+| 1 | Session setup | ACCESS (preconditions on the document are DURABLE) |
+| 2 | Measurement loop | DURABLE (*Getting a render* = ACCESS, C2) |
+| 3 | batchPlay gotchas | ACCESS |
+| 4 | Photoshop selection masks / legacy layer recipes | ACCESS (legacy) |
+| 5 | Camera Raw Filter — apply, read, edit | ACCESS (C3/C4); Camera Raw write behavior → §6 *Write semantics* |
+| 6 | Camera Raw mask XMP schema + write semantics | DURABLE |
+| 7 | Remove tool | DURABLE (what/why); `$Rtch` key = ACCESS |
+| 8 | Calibrations | DURABLE |
+| 9 | Who does what | DURABLE (the C8 boundary) |
+| 10 | Tooling | ACCESS (`measure_all.py`, `wb.py` are DURABLE) |
+
+**Capability contract** — the only operations the workflow needs from any connector (each ACCESS section says how adb-mcp does it):
+
+| # | Capability | Used by |
+|---|---|---|
+| C1 | List documents / layers; read doc info (size, path, saved, raw SO type) | WORKFLOW §2.1 |
+| C2 | Render the merged image to a 16-bit PNG (2000 px long edge; 1:1 crops) in a known color space | §2.1, §4 |
+| C3 | **Read** the live Camera Raw Filter on a layer, complete (XMP + dialog-only keys + Remove/Lens Blur state) | §3 "read live, resend every key" |
+| C4 | **Write** the Camera Raw Filter in one call, preserving every key not being edited and the AI/Remove data | §2.6 |
+| C5 | Non-destructive crop (`delete:false` equivalent), readable back | §2.3 |
+| C6 | Save/export a file; read the saved path | §5 archive |
+| C7 | Detect "blocked by a dialog" and "host not connected", with a clear error | §1 |
+| C8 | *Not provided — user-only:* raw-SO WB/Calibration, AI masks, Remove, standalone brush | §3 |
+
+If a connector lacks C3/C4 (cannot read/write the full filter), the workflow degrades to "agent plans, user applies" — say so in its adapter.
+
+## 1. Session setup `[ACCESS: adb-mcp — implements C1, C6, C7]`
+**Any connector (DURABLE):** work on a **duplicate** document; Lightroom Classic closed; one doc open; close every PS / Camera Raw dialog before acting; the user saves edits as TIFF next to the source.
 - Chain: chat ⇄ remote-devices ⇄ MCP servers ⇄ node proxy :3001 ⇄ UXP plugin ⇄ Photoshop.
 - `cd ~/dev/adb-mcp/adb-proxy-socket && node proxy.js` → Photoshop → UXP Dev Tools: Load/**Reload** "Photoshop MCP Agent" → Plugins › Photoshop MCP Agent › **Connect**.
 - Proxy log `No clients registered for application: photoshop` = proxy up, plugin not connected → Reload plugin → Connect.
@@ -15,13 +51,13 @@ Verified on Camera Raw 19.0, Photoshop (Beta, Developer Mode), Canon R5 II CR3 /
 - **Document `_id` can change mid-session** (reopen, crash recovery: 143 → 194; layer renamed `_52_00281`) → `get_documents` before targeting by `_id`. After a PS crash: restart proxy + plugin Connect; auto-recovery may restore the duplicate *with* raw edits.
 - Heavy re-renders (152 MP pano, big `set`s) can time out the MCP call (`Could not connect… Timed Out`) while the command **succeeds** (~50% on big sets) → check state / render before retrying; never blind-retry a write.
 
-## 2. Measurement loop
+## 2. Measurement loop `[DURABLE; "Getting a render" = ACCESS, C2]`
 Always measure with `tools/measure_all.py` (one call per checkpoint):
 - `…/.venv/bin/python tools/measure_all.py baseline <render.png> [--crop x0,y0,x1,y1]` — WB bins, 3×3 weight grid, crop grid preview.
 - `… diff <before.png> <after.png> [--hero x0,y0,x1,y1]` — regional table, tonal bands, `before_after`, `|ΔL*|×15` `diffmap`, `Δb*` `dbmap`, `hero_zoom`.
 - `tools/wb.py` = the detailed WB density-bin check (auto horizon; sky/cloud, fog/haze, pale-rock, darks/foliage bins).
 
-**Getting a render:** batchPlay [`duplicate` (merged) → `imageSize` 2000 px long edge → `convertToProfile` sRGB (colorimetric, BPC)], then `save_document_as(path, "PNG")` → **16-bit PNG** → `device_stage_files` → numpy; `close` the measure doc by `_id` (if PS already closed it, `close` errors "Cannot read properties of null" → `get_documents` first).
+**Getting a render** `[ACCESS: adb-mcp, C2 — any connector must give a 16-bit PNG in a known color space]`: batchPlay [`duplicate` (merged) → `imageSize` 2000 px long edge → `convertToProfile` sRGB (colorimetric, BPC)], then `save_document_as(path, "PNG")` → **16-bit PNG** → `device_stage_files` → numpy; `close` the measure doc by `_id` (if PS already closed it, `close` errors "Cannot read properties of null" → `get_documents` first).
 - batchPlay `save` with a `_path` fails ("invalid file token"); `save_document_image_as_png` → "No raw image data".
 - For a visual JPEG: run `convertMode` depth 8 **as its own call** (inside a batch it silently doesn't run → "Only 8 bit image data can be encoded as jpeg"); fetch the image **after** the batch returns. `get_document_image` fails on 16-bit docs. Standalone `convertToProfile` on an sRGB doc → "parameters not currently valid" (harmless).
 - **Full-res check** (Texture, "is there data in the shadows"): duplicate merged → `crop` `delete:true` → save PNG. The 2000 px preview under-reads Texture/Clarity (8.5× downsample): +0.22/+0.22 read +11% at 2000 px but was clearly crisper at 1:1.
@@ -33,7 +69,8 @@ Always measure with `tools/measure_all.py` (one call per checkpoint):
 - Visual weight: `detail × (C*+5) × |L − median|`, blurred (σ≈40 px). Highest weight not on the subject → crop or calm it. Guide, not target.
 - Mask verification: render diff `|ΔL*|×15` shows the effective mask; `Δb*×25` shows color edits.
 
-## 3. batchPlay gotchas
+## 3. batchPlay gotchas `[ACCESS: adb-mcp]`
+> The Curves/ProPhoto and chroma facts below are DURABLE Photoshop behavior; the batch-echo and `make`/`set` rules are connector quirks.
 - A multi-command batch echoes **only the first command**; a failure mid-batch **silently skips the rest** → verify state after; send risky steps alone.
 - Curves: `make` adjustmentLayer (curves, luminosity) **then** `set` targetEnum with points (points inside `make` are ignored). Inputs are ProPhoto γ1.8: in ≈ 255·Y^(1/1.8); 100→112 ≈ +5 L* near L*50.
 - Luminosity-mode lifts cost ~5% chroma → pair with Saturation +5 (Vibrance alone recovers little).
@@ -42,7 +79,7 @@ Always measure with `tools/measure_all.py` (one call per checkpoint):
 - Duplicated SO layers are linked instances (raw-level edit shows in all).
 - Non-destructive crop: `crop` with `delete:false` (layer keeps hidden pixels; bounds go negative).
 
-## 4. Photoshop selection masks (legacy layer workflow; prefer Camera Raw masks)
+## 4. Photoshop selection masks (legacy layer workflow; prefer Camera Raw masks) `[ACCESS: adb-mcp, legacy]`
 | Need | Recipe |
 |---|---|
 | Land vs fog/sky | `select_subject(SO)` — on landscapes returns **all land**, not "the subject" |
@@ -63,7 +100,8 @@ Always measure with `tools/measure_all.py` (one call per checkpoint):
 - To edit a nested SO later: double-click the layer → inner document → adjust → save/close.
 - PS → Camera Raw mapping: Curves-Luminosity lift/burn → `LocalExposure2012`; polygon → intersected linear gradients; `select_subject` rock → Color Range on rock.
 
-## 5. Camera Raw Filter — apply, read, edit
+## 5. Camera Raw Filter — apply, read, edit `[ACCESS: adb-mcp — implements C3/C4]`
+> Descriptor encoding only. What Camera Raw *does* with the writes (which masks survive, SyncIDs, dialog normalization) is DURABLE → §6 *Write semantics*.
 **Apply** (selected SO layer → editable Smart Filter; only sent keys change):
 ```json
 {"_obj":"Adobe Camera Raw Filter","$CrTx":15,"_options":{"dialogOptions":"dontDisplay"}}
@@ -88,18 +126,15 @@ Always measure with `tools/measure_all.py` (one call per checkpoint):
    "$CrVe":"19.0","$PrVN":6,"$PrVe":251920384,"$LCs":"<edited XMP>"}},
  "_options":{"dialogOptions":"dontDisplay"}}
 ```
-- AI masks, object masks and Generative Remove patches survive with `$BigT` omitted (verified 9956: patch ΔL* 0.00). Save before the first scripted write after a Remove (revert = safety net).
-- **Standalone Brush masks do NOT survive scripted writes** (0044) → do brush work last, after all scripted passes. (Brush dabs *inside* a mask group with Color Range did survive on 0028.)
-- New corrections need fresh 32-char `CorrectionSyncID` / `MaskSyncID`.
-- Dialog re-save normalizes XMP (radials `Flipped="true"`, range masks `MaskValue="0"`) — keep what it wrote.
+- Write behavior of AI masks, Remove patches, Brush masks, SyncIDs and dialog re-saves → §6 *Write semantics*. In adb-mcp the AI-mask bitmap blob is `$BigT`: omit it on writes.
 - Global filter keys verified: `$CrTx` Texture, `$Dhze` Dehaze, `$Tint` (relative on the rendered SO: −8 → fog a* ≈ −1.3; also nudges b* warmer and L* +2 globally). Probably (pixel-check first): `$Ex12 $Cr12 $Hi12 $Sh12 $Wh12 $Bk12 $Cl12 $Vibr`. An unknown key is still echoed by `get` → only a pixel check proves it works.
 
-**Raw Smart Object vs filter**
+**Raw Smart Object vs filter** `[DURABLE]`
 - WB and Calibration belong in the **raw SO** (user double-clicks; not scriptable). Raw-SO settings are **not readable** (only `documentID` changes) → user reports values; record as manual in the case JSON.
 - Do all mask work and Remove in a Camera Raw **Filter** so it is readable (user rule).
 - Raw SO can be a pano DNG; its LrC settings (incl. Glow) stack with filter Glow.
 
-## 6. Camera Raw mask XMP schema
+## 6. Camera Raw mask XMP schema `[DURABLE]`
 Correction: `crs:What="Correction"`, `CorrectionAmount="1"`, `CorrectionActive`, `CorrectionName`, `CorrectionSyncID`; local sliders on −1…+1 (`LocalExposure2012`, `LocalContrast2012`, `LocalHighlights2012`, `LocalShadows2012`, `LocalWhites2012`, `LocalBlacks2012`, `LocalClarity2012`, `LocalTexture`, `LocalDehaze`, `LocalTemperature`, `LocalTint`, `LocalSaturation`); then `crs:CorrectionMasks` seq. Components combine in order:
 - **Blend:** `MaskBlendMode="0"` add · `"1"` subtract · **intersect = `"1"` + `MaskInverted="true"`**. "∪ then ∩": several add components, then one intersect applies to the union. Radial subtract = blend 1, inverted false.
 - **Linear** `Mask/Gradient`: `ZeroX/ZeroY` (0) → `FullX/FullY` (1, stays 1 beyond); normalized, origin top-left; perpendicular in pixel space (`acr_band.py`).
@@ -110,10 +145,17 @@ Correction: `crs:What="Correction"`, `CorrectionAmount="1"`, `CorrectionActive`,
 - Not yet observed: standalone Brush XMP, Depth masks.
 - **All coordinates are in the uncropped SO frame** — a non-destructive crop only hides pixels; convert from an uncropped render (or crop-preview px → uncropped normalized).
 
-## 7. Remove tool (`$Rtch`)
+**Write semantics** (what Camera Raw does with a scripted write of the filter; moved here from §5)
+- AI masks, object masks and Generative Remove patches survive a write that omits their bitmap data (adb-mcp: `$BigT`) (verified 9956: patch ΔL* 0.00). Save before the first scripted write after a Remove (revert = safety net).
+- **Standalone Brush masks do NOT survive scripted writes** (0044) → do brush work last, after all scripted passes. (Brush dabs *inside* a mask group with Color Range did survive on 0028.)
+- New corrections need fresh 32-char `CorrectionSyncID` / `MaskSyncID`.
+- Dialog re-save normalizes XMP (radials `Flipped="true"`, range masks `MaskValue="0"`) — keep what it wrote.
+- Keys not sent in a write are reset → always read the live filter first and resend everything (C3 → C4).
+
+## 7. Remove tool `[DURABLE; the key name `$Rtch` is ACCESS: adb-mcp]`
 `crs:RemoveAreas` seq; items `SpotType="heal_patchmatch"`, `fill_method="firefly"` (Generative), `pm_target_*` (px, uncropped SO), `pm_search_*`, patch digests (bitmaps in `$BigT`), `crs:Masks` → `Mask/Paint` (`Radius` normalized, `Flow`, `CenterWeight`, `Dabs`). Image-specific — **cannot be authored headless**; the user paints it (in the filter). Scripted Content-Aware Fill (stamp → polygon → fill → mask) failed twice on textured edges (9792). Example: `cases/crf-9956-final.json`.
 
-## 8. Calibrations (measured — use as starting points, then render → measure)
+## 8. Calibrations `[DURABLE]` (measured — use as starting points, then render → measure)
 | Control | Calibration | Source |
 |---|---|---|
 | Local Exposure units | dialog = **4 × stored** (+0.65 dialog = 0.1625) | 0013 |
@@ -126,7 +168,7 @@ Correction: `crs:What="Correction"`, `CorrectionAmount="1"`, `CorrectionActive`,
 | Local Dehaze | needs ≥ +0.25 to show on hazy areas; **strength varies by render path** (headless −11 L*, after dialog OK −5.5, after nesting −11) → judge on a full re-render | 9956, 9861 |
 | Texture/Clarity | under-read at 2000 px; +0.15/+0.10 invisible at preview scale on fog rock, +0.25/+0.15 → +20…39% | 9956, 0265 |
 
-## 9. Who does what
+## 9. Who does what `[DURABLE — the C8 boundary; "Headless" = via the connector, so re-check per connector]`
 | Task | Headless | Needs the user |
 |---|---|---|
 | Global filter sliders, radials, linear gradients, Luminance Range | ✅ | |
@@ -141,8 +183,11 @@ Correction: `crs:What="Correction"`, `CorrectionAmount="1"`, `CorrectionActive`,
 - Select Landscape → Vegetation isn't always offered → fallback: Luminance Range ∩ Radial − Object mask.
 
 ## 10. Tooling
+**Connector-independent `[DURABLE]`**
 - `tools/measure_all.py` — the one measurement entry point (16-bit aware; diff handles size mismatch).
 - `tools/wb.py` — detailed WB density bins (pure numpy; runs in the device VM).
 - `tools/m.py`, `tools/diff.py` — components (region table; region ΔL/detail/C* + mask image).
+
+**Connector scripts `[ACCESS: adb-mcp]`** (each carries an `ACCESS layer: adb-mcp` header comment; rewrite or retire on a swap)
 - `tools/apply_filter.js`, `tools/render_helper.js`, `tools/export_comparison_renders.js` — UXP/batchPlay helpers.
 - XMP builders used in sessions (`acr.py`: `grad()`, `radial()`, `lum()`, `corr()`; `acr_band.py`: band endpoints) are not in the repo yet — rebuild from §6 or edit the live `$LCs`.

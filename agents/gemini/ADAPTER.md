@@ -3,6 +3,7 @@
 Read with `WORKFLOW.md`. Only Gemini-specific plumbing lives here.
 
 ## Gemini CLI (terminal on the Mac)
+- **Photoshop access:** connector = adb-mcp (`.gemini/settings.json`) — implements `engine.md` capabilities C1–C7 via its ACCESS sections (§1–5, §10). On a connector swap, update this line and the MCP config.
 - Start in the repo: `cd ~/dev/darkroom-agents && gemini` → `GEMINI.md` imports `WORKFLOW.md` + this adapter.
   Verify once per session with `/memory show` (both files must appear); after edits use `/memory refresh`.
 - **MCP servers** come from `.gemini/settings.json` (Mac `.venv` Python running `~/dev/adb-mcp/mcp/ps-mcp.py` and `ps-batch-play.py` directly — this needs the `__main__` entry points in the adb-mcp fork).

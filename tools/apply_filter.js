@@ -1,3 +1,4 @@
+// ACCESS layer: adb-mcp (connector-specific; rewrite or retire if the Photoshop connector changes — engine.md Layers)
 const { io } = require("../adb-proxy-socket/node_modules/socket.io-client");
 
 async function sendCommand(action, options) {

@@ -9,9 +9,9 @@ AI-assisted RAW editing in Photoshop/Camera Raw for wildlife and landscape (Cano
 @./recipes/session-handoff.md
 
 ## 1. Preconditions
-- The Photoshop MCP server runs from `~/dev/adb-mcp` (fork of `mikechambers/adb-mcp`). Never edit workflow files there.
+- The Photoshop connector (named in your adapter) is running and connected; if not, follow its setup (`engine.md` §1, tagged ACCESS; `docs/running-a-session.md`). Never edit connector code from a session.
 - The user works on a **duplicate** document, Lightroom Classic is closed, and **no Photoshop / Camera Raw dialog is open** (else `host is in a modal state`).
-- Plugin not connected (`No clients registered for application: photoshop`) → ask the user to Reload the UXP plugin and click Connect.
+- Connector not connected → ask the user to restart/reconnect it per the adapter (adb-mcp: Reload the UXP plugin and click Connect).
 
 ## 2. Session workflow
 0. **Classify & load:** genre, light, subject, main problems (+ any new material) → read `recipes/playbooks/<genre>.md` (both for mixed scenes), the relevant `recipes/materials.md` entries, and the 2–3 closest cases from `recipes/cases/index.csv`.
@@ -25,7 +25,7 @@ AI-assisted RAW editing in Photoshop/Camera Raw for wildlife and landscape (Cano
 
 ## 3. Camera Raw rules (details: `recipes/engine.md`)
 - **Non-destructive:** never repaint or generate pixels; sculpt inside **one Camera Raw Filter** on the raw Smart Object so every adjustment stays editable by hand.
-- **Read the live filter and resend every key** before any scripted write (Glow `$GLW*`, Remove `$Rtch`, …); omit `$BigT`.
+- **Read the live filter and resend every key** before any scripted write (Glow `$GLW*`, Remove `$Rtch`, …); omit the AI-mask bitmap blob (adb-mcp: `$BigT`).
 - Units: local Exposure dialog = 4 × stored; other local sliders dialog = stored × 100.
 - Mask coordinates are normalized to the **uncropped** SO.
 - User-only steps: raw-SO WB/Calibration, first Color Range sample, AI masks (Select Subject/Sky/Landscape/Object), **Remove — always in the filter, never in the raw SO dialog**, standalone brush (last — scripted writes wipe it).

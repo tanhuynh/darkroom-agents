@@ -12,6 +12,7 @@ Read with `WORKFLOW.md`. Only Claude-specific plumbing lives here. Two ways Clau
 - **Long calls:** heavy `set`s/renders may time out while succeeding → re-read state before retrying.
 
 ## B. Claude Code (terminal on the Mac)
+- **Photoshop access:** connector = adb-mcp (`.mcp.json`) — implements `engine.md` capabilities C1–C7 via its ACCESS sections (§1–5, §10). On a connector swap, update this line and the MCP config.
 - Start in the repo: `cd ~/dev/darkroom-agents && claude` → `CLAUDE.md` loads `WORKFLOW.md` + this adapter.
 - MCP servers come from `.mcp.json` in the repo (repo-locked `uv run --directory ~/dev/adb-mcp/mcp mcp run …`; never `--with mcp`).
 - Measurement runs locally: `.venv/bin/python tools/measure_all.py baseline|diff …`; open overlays with `open measure/<file>.png`.

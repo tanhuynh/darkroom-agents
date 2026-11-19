@@ -2,7 +2,7 @@
 
 | Layer | File | Changes when… |
 |---|---|---|
-| **Engine** (how) | `engine.md` | Photoshop/Camera Raw/MCP behavior is learned (schema, calibrations, gotchas) |
+| **Engine** (how) | `engine.md` — sections tagged DURABLE (Camera Raw/measurement) or ACCESS (adb-mcp connector); capability contract C1–C8 | Photoshop/Camera Raw/connector behavior is learned (schema, calibrations, gotchas) |
 | **Playbooks** (what) | `playbooks/landscape.md`, `playbooks/wildlife.md` | a principle is confirmed on ≥2 images, or is clearly physics |
 | **Materials** | `materials.md` | a new surface/place is met (snow, water, grass, fur…) |
 | **Cases** (episodes) | `cases/<id>.md` + `crf-<id>-final.json` (saved edit), `cases/<id>-<agent>.md` + `crf-<id>-<agent>.json` (benchmarks), `cases/index.csv` (`agent`, `role`) | every finished image / benchmark |
@@ -19,7 +19,7 @@
 ## After the user saves (archive step) — any agent
 1. Write `cases/crf-<id>-final.json` (final filter command + raw-SO manual settings) and `cases/<id>.md` (tags + what worked/failed), add a row to `cases/index.csv`.
 2. **Sort the lessons** — each one either stays in the case card (image-specific) or becomes a **proposal** in `inbox/` (template there) targeting:
-   - `engine.md` — engine fact (schema, unit, calibration, tool quirk);
+   - `engine.md` — engine fact (schema, unit, calibration, tool quirk); say whether it is DURABLE or ACCESS (connector-specific);
    - `materials.md` — material behavior;
    - a playbook — principle: **promote** if physics or now seen on ≥2 cases (add the case ID; drop *(1 case)*); otherwise mark *(1 case)*.
    Proposals are merged by the user, or by an agent the user explicitly asks to merge (checklist in `inbox/README.md`).

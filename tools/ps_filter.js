@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// ACCESS layer: adb-mcp (connector-specific; rewrite or retire if the Photoshop connector changes — engine.md Layers)
 // Read / write the Camera Raw Filter on a layer through the adb-mcp proxy (same socket the MCP servers use).
 // Encodes the engine.md §5 rules: read the live filter, resend EVERY key (Glow, $Rtch, $Lblr, $DMIn, …), omit $BigT.
 //

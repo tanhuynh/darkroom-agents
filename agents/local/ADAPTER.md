@@ -3,6 +3,7 @@
 Copy to `agents/local-<model>/ADAPTER.md` when a local model is added (see `docs/adding-an-agent.md`).
 
 ## Fill in
+- **Photoshop access (fill in):** connector = adb-mcp (the client's MCP config) — implements `engine.md` capabilities C1–C7 via its ACCESS sections (§1–5, §10). On a connector swap, update this line and the MCP config.
 - **Model & runtime:** e.g. Qwen3-VL via MLX / LM Studio / Ollama; context window; vision support (needed to look at renders).
 - **MCP client:** which client connects the model to the adb-mcp servers, and its config file in this repo.
 - **How it loads the rules:** does the client read a context file automatically? If not, the first prompt must be

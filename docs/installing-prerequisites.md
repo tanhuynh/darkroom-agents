@@ -24,7 +24,7 @@ Creative Cloud app → Apps → Photoshop → Install / Update. Check **About Ph
 
 Tick **Enable Developer Mode**, then restart Photoshop.
 
-## 4. UXP Developer Tools
+## 4. UXP Developer Tools *(adb-mcp connector — not needed if Photoshop gets a built-in MCP)*
 1. Creative Cloud app → **All apps** → search **UXP Developer Tool** → **Install**.
 2. Launch it. Accept the prompt to enable Developer Mode (it may ask for your Mac password / Windows administrator approval).
 3. Leave it installed; adding the plugin is in `running-a-session.md` §0.

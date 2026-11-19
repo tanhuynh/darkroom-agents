@@ -1,10 +1,20 @@
 # Running an editing session
 
+First time? Install Node, `uv`, UXP Developer Tools and the agent first: `docs/installing-prerequisites.md`.
+
+## 0. One-time setup: UXP Developer Tools + the plugin
+1. **Photoshop 26.0 (2025) or newer.** In Photoshop: **Settings › Plugins › check "Enable Developer Mode"**, then restart Photoshop.
+2. Install **UXP Developer Tools** from the Creative Cloud desktop app (All apps › search "UXP Developer Tool" › Install). Launch it and accept the prompt to enable developer mode.
+3. In UXP Developer Tools: **File › Add Plugin…** → select `~/dev/adb-mcp/uxp/ps/manifest.json` (the fork's Photoshop plugin; not `pr`/`id`).
+4. Click **Load** on the "Photoshop MCP Agent" row (Photoshop must be running). In Photoshop open **Plugins › Photoshop MCP Agent** and click **Connect**.
+- The plugin stays listed in UXP Developer Tools, so steps 1–3 are done once. Photoshop does not remember the loaded plugin: **after every Photoshop restart, click Reload (or Load) again, then Connect** (see §1).
+- Also needed once: Node.js (for the proxy) and `uv` (for the MCP servers, §2a).
+
 ## 1. Prepare Photoshop (every session, any agent)
 ```bash
 cd ~/dev/adb-mcp/adb-proxy-socket && node proxy.js
 ```
-- Open Photoshop → UXP Developer Tools → Load/**Reload** "Photoshop MCP Agent" → **Plugins › Photoshop MCP Agent › Connect**.
+- Open Photoshop → UXP Developer Tools → Load/**Reload** "Photoshop MCP Agent" (first-time setup: §0) → **Plugins › Photoshop MCP Agent › Connect**.
 - Open the image as a **raw Smart Object** (e.g. Lightroom Classic: Edit In › Open as Smart Object), make a **duplicate**, quit LrC.
 - No Photoshop / Camera Raw dialogs open.
 

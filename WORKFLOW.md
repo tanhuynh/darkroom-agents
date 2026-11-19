@@ -17,17 +17,21 @@ AI-assisted RAW editing in Photoshop/Camera Raw for wildlife and landscape (Cano
 0. **Classify & load:** genre, light, subject, main problems (+ any new material) → read `recipes/playbooks/<genre>.md` (both for mixed scenes), the relevant `recipes/materials.md` entries, and the 2–3 closest cases from `recipes/cases/index.csv`.
 1. **Inspect:** documents, layers, doc info (size, raw SO type); baseline render (2000 px long edge, 16-bit sRGB PNG).
 2. **White balance first, always** — `tools/measure_all.py baseline` (+ `tools/wb.py` for detail). Global cast → user fixes it in the raw SO; local shade casts → filter corrections.
-3. **Composition & crop:** weight map + crop preview with thirds grid; non-destructive crop (`delete:false`).
-4. **Critique:** what works first (composition, leading lines, DR retention, shadow detail, tonal balance), then the top 2–3 issues labeled **FIX** vs **TASTE**. Ignore the mat; small clipping/gamut numbers matter only for print.
-5. **Plan in text, wait for approval:** full numerical Camera Raw plan (stored XMP values + dialog equivalents). No sliders before the user approves.
-6. **Apply as one batched call**, render, run `tools/measure_all.py diff before after --hero …`, show the overlays (`before_after`, `diffmap`, `dbmap` when color changed, `hero_zoom`). Adjust in follow-up passes, each approved.
-7. **Archive** after the user saves the TIFF (§5), then delete the render PNGs in `measure/` (keep the folder).
+3. **Composition & crop:** weight map + crop preview with thirds grid; non-destructive crop (`delete:false`). The crop decides what the subject is, so it comes before the AI masks. Commit the crop (no pending Crop-tool box) before the user opens the filter dialog.
+4. **Subject decision, then AI masks (user step):** state the subject (wildlife: one animal, all of them, or animals + an accent such as food — accents must sit inside the mask) and have the user create the masks the frame supports in the Camera Raw Filter: Select Subject for any clear subject; for landscapes only the masks the frame contains (Select Sky only with a real sky, Landscape sub-categories such as Mountains/Vegetation only if offered). The agent never creates an AI mask; it reads the live filter and records each AI component (type, subcategory, `MaskSyncID`, digests).
+   - **Quality gate:** judge each mask on an overlay at 1:1 before using it. Good → clone it (see §3). Poor or missing → fall back to parametric masks (Luminance Range ∩ Radial/Linear − Object mask, Color Range with the user's first sample), or ask the user to refine it; say in the plan why a mask was skipped.
+   - Optional measurement alpha: a Photoshop `select_subject` / `select_sky` export, labelled "PS proxy" (not the Camera Raw mask), for `measure_all.py baseline|diff --mask alpha.png` (subject / background / edge-ring stats); only when the mask passed the gate, otherwise measure by regions.
+5. **Critique:** what works first (composition, leading lines, DR retention, shadow detail, tonal balance), then the top 2–3 issues labeled **FIX** vs **TASTE**. Ignore the mat; small clipping/gamut numbers matter only for print.
+6. **Plan in text, wait for approval:** full numerical Camera Raw plan (stored XMP values + dialog equivalents); each correction names its mask source (AI-mask clone / inverted / subtracted, parametric, or intersect). Intersect forms (AI ∩ Luminance/Color Range or gradient) are unverified — flag them as experiments with a 1:1 control. No sliders before the user approves.
+7. **Apply as one batched call**, render, run `tools/measure_all.py diff before after --hero …`, show the overlays (`before_after`, `diffmap`, `dbmap` when color changed, `hero_zoom`). Adjust in follow-up passes, each approved.
+8. **Archive** after the user saves the TIFF (§5), then delete the render PNGs in `measure/` (keep the folder).
 
 ## 3. Camera Raw rules (details: `recipes/engine.md`)
 - **Non-destructive:** never repaint or generate pixels; sculpt inside **one Camera Raw Filter** on the raw Smart Object so every adjustment stays editable by hand.
 - **Read the live filter and resend every key** before any scripted write (Glow `$GLW*`, Remove `$Rtch`, …); omit the AI-mask bitmap blob (adb-mcp: `$BigT`).
 - Units: local Exposure dialog = 4 × stored; other local sliders dialog = stored × 100.
 - Mask coordinates are normalized to the **uncropped** SO.
+- **AI masks are made once by the user, then reused by script:** copy the `Mask/Image` component into other corrections with a fresh `MaskSyncID` (invert = background, blend 1 = subtract), `$BigT` omitted. After the user reopens the dialog (e.g. after a Remove) the digests change — re-read before cloning. Proposal: `recipes/inbox/2026-11-17-claude-0025-cloned-ai-mask.md`.
 - User-only steps: raw-SO WB/Calibration, first Color Range sample, AI masks (Select Subject/Sky/Landscape/Object), **Remove — always in the filter, never in the raw SO dialog**, standalone brush (last — scripted writes wipe it).
 
 ## 4. Measurement & proof

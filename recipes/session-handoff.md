@@ -8,17 +8,18 @@ Loaded via `WORKFLOW.md` (+ your `agents/<agent>/ADAPTER.md`); load the matching
 - Work in `~/dev/darkroom-agents` (connect it as the chat folder; measure PNGs go to `measure/`). Duplicate document, LrC closed, no open dialogs.
 - Measurement: `tools/measure_all.py baseline|diff …` (never ad-hoc scripts); where it runs depends on the agent (see adapter).
 
-## Workflow (user rules in bold)
+## Workflow (user rules in bold; canonical text in `WORKFLOW.md` §2)
 0. **Classify + load** (README "In a session").
 1. `get_documents` / `get_layers` / doc info (size, raw SO type), baseline render.
 2. **WB check first, before any edit** (`measure_all.py baseline`; `wb.py` for detail). Global cast → user fixes in the raw SO.
-3. Composition / crop: weight map + crop mocks; non-destructive `crop` (`delete:false`).
-4. **Critique says what works** (composition, leading lines, DR, shadow detail, tonal balance) + top 2–3 FIX/TASTE. Ignore the mat; small clipping only matters for print.
-5. **Plan all edits in text (stored + dialog values), wait for approval, then apply as one batched call**; render → `measure_all.py diff` → adjust in follow-up passes.
-6. **Before every scripted write: read the live filter and resend ALL keys** (`$GLW*`, `$Rtch`, …); omit `$BigT`.
-7. **Remove: user paints it in a Camera Raw Filter, never in the raw SO dialog.** Save before the first scripted write after a Remove. Standalone brush work last.
-8. After the user saves: archive step (`recipes/README.md`) — case JSON + card + index row; rule changes go to `recipes/inbox/` as proposals.
-9. **Cleanup:** delete render PNGs in `measure/` (keep the folder). Commit in `darkroom-agents` (git details per adapter); the user pushes.
+3. Composition / crop: weight map + crop mocks; non-destructive `crop` (`delete:false`); commit the crop before the user opens the filter dialog.
+4. **Subject decision, then AI masks (user step):** the user makes the masks the frame supports (Select Subject; Sky / Landscape only if present). Agent reads, quality-gates (1:1 overlay), clones them; poor/missing → parametric fallback. Optional `measure_all.py --mask` alpha (PS proxy).
+5. **Critique says what works** (composition, leading lines, DR, shadow detail, tonal balance) + top 2–3 FIX/TASTE. Ignore the mat; small clipping only matters for print.
+6. **Plan all edits in text (stored + dialog values, mask source per correction), wait for approval, then apply as one batched call**; render → `measure_all.py diff` → adjust in follow-up passes.
+7. **Before every scripted write: read the live filter and resend ALL keys** (`$GLW*`, `$Rtch`, …); omit `$BigT`.
+8. **Remove: user paints it in a Camera Raw Filter, never in the raw SO dialog.** Save before the first scripted write after a Remove. Standalone brush work last.
+9. After the user saves: archive step (`recipes/README.md`) — case JSON + card + index row; rule changes go to `recipes/inbox/` as proposals.
+10. **Cleanup:** delete render PNGs in `measure/` (keep the folder). Commit in `darkroom-agents` (git details per adapter); the user pushes.
 
 ## Status
 - 9 landscape cases (all Bryce, Nov 2026) + 2 wildlife cases — 0025 (grey crowned crane, saved `…/2026-10-31/_52_0025-2-Edit.tif`) and 9532 (servals tugging a fish, Nov 18 2026; **archived before the TIFF was saved: path and final size to confirm**) — `cases/index.csv`. `playbooks/wildlife.md` is still a draft: every rule is *(1 case)* (§A crop, §B.1/§B.2 background, §E Push-Pull from 0025; §F multi-subject, §B.1 desaturation, accent calm from 9532).
@@ -37,6 +38,7 @@ Loaded via `WORKFLOW.md` (+ your `agents/<agent>/ADAPTER.md`); load the matching
 - Shared rules `WORKFLOW.md`; adapters `agents/claude/`, `agents/gemini/`, `agents/local-qwen38-27b/` (Bionic, in bring-up), `agents/local/` (template). Inbox: `recipes/inbox/` — 10 proposals awaiting review: 0025 (render-prophoto, radial-maskinverted, cloned-ai-mask, bisect-protocol, calibrations, lens-blur-keys, ps-filter-tool, png-iccp) and 9532 (crop-tool-commit, calibrations, wildlife-composition).
 
 ## Open items
+- **AI-mask-first workflow (Nov 19):** `WORKFLOW.md` §2 steps 3–4 changed (crop → subject decision → user-made AI masks → gate → clone); `measure_all.py --mask` built and synthetic-tested (`tools/test_measure_mask.py`). Still to do: read-only check on a real wildlife frame (render + PS `select_subject` alpha vs the Camera Raw mask), verify the intersect form (AI ∩ Luminance/Color Range) with a 1:1 control, merge inbox `cloned-ai-mask` into `engine.md` §5/§6.
 - More wildlife frames to verify/revise `playbooks/wildlife.md` (0025: Eye, Push-subtract and Lens Blur interaction are now checked; the saved TIFF loses fine feather tips to the Lens Blur — accepted as good enough; next time paint stray tips into the subject depth before saving; Select Subject, Remove and Lens Blur are user steps, the filter JSON cannot replay `$BigT`).
 - `tools/apply_pushpull_filter.js`, `apply_step4_filter.js`, `build_pushpull*_xmp.py`, `get_filter.js`, `render_prophoto.js` are Gemini's 0025 scratch scripts (image-specific, stale mask digests), committed as examples; `tools/ps_filter.js` is the general read/write tool that replaces them.
 - 9532: confirm the saved TIFF's size (expected 7784×4865, x 0–7784, y 150–5015) and path; if Photoshop's Crop tool box is pending, scripted commands can revert the crop — Esc first (inbox).

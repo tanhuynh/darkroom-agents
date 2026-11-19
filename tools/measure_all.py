@@ -10,12 +10,18 @@ Usage:
 
   2. Post-Pass Verification (Diff + Visual Overlays):
      python measure_all.py diff <before.png> <after.png> [--hero x0,y0,x1,y1] [--out-dir ./measure]
+
+  Optional --mask <alpha.png> (both commands): subject alpha (white = subject, any size, resampled to
+  the render). Adds subject vs background vs edge-ring statistics. A Photoshop select_subject export is a
+  PROXY for the Camera Raw mask - use it only after the mask passed the quality gate (WORKFLOW.md step 4).
+  --ring N sets the edge-ring half-width in px (default 6, at the render's size).
 """
 
 import argparse
 import os
 import numpy as np
 from PIL import Image, ImageDraw
+from scipy import ndimage as ndi
 from skimage import color, filters
 
 
@@ -52,7 +58,85 @@ def local_detail(L):
     return np.hypot(gx, gy)
 
 
-def run_baseline(render_path, crop_box=None, out_dir="."):
+def load_mask(path, shape):
+    """Subject alpha in [0,1] resampled to shape=(h,w). RGBA with a varying alpha channel uses the
+    alpha; otherwise the first channel (white = subject). 16-bit aware."""
+    im = Image.open(path)
+    if im.mode == "RGBA" and im.getchannel("A").getextrema()[0] < 255:
+        im = im.getchannel("A")
+    if im.mode in ("I;16", "I", "I;16B", "I;16L"):
+        arr = np.asarray(im, dtype=np.float32) / 65535.0
+        im = Image.fromarray(np.clip(arr * 255.0 + 0.5, 0, 255).astype(np.uint8))
+    else:
+        im = im.convert("L")
+    if im.size != (shape[1], shape[0]):
+        im = im.resize((shape[1], shape[0]), Image.Resampling.BILINEAR)
+    return np.asarray(im, dtype=np.float32) / 255.0
+
+
+def mask_regions(alpha, ring):
+    """Boolean regions from a soft alpha: subject (core, eroded by ring), background (core),
+    edge ring (band of +/- ring px around the 0.5 contour)."""
+    hard = alpha >= 0.5
+    if ring > 0:
+        ball = ndi.generate_binary_structure(2, 1)
+        inner = ndi.binary_erosion(hard, ball, iterations=ring)
+        outer = ndi.binary_dilation(hard, ball, iterations=ring)
+    else:
+        inner, outer = hard, hard
+    return {"Subject (core)": inner, "Background": ~outer, "Edge ring": outer & ~inner}
+
+
+def run_subject_report(lab, det, alpha, ring):
+    L, a, b = lab[..., 0], lab[..., 1], lab[..., 2]
+    C = np.hypot(a, b)
+    regions = mask_regions(alpha, ring)
+    n = alpha.size
+    print("\n=== SUBJECT vs BACKGROUND (mask proxy) ===")
+    print(f"Subject area {np.mean(alpha >= 0.5) * 100:.1f}% of frame, edge ring +/-{ring}px")
+    print(f"{'Region':<16} {'Px %':>6} {'L*':>6} {'a*':>7} {'b*':>7} {'C*':>6} {'Detail':>7}")
+    print("-" * 60)
+    for name, m in regions.items():
+        if m.sum() == 0:
+            print(f"{name:<16} {'0.0':>6}  (empty)")
+            continue
+        print(
+            f"{name:<16} {m.sum() / n * 100:>6.1f} {np.median(L[m]):>6.1f} {np.median(a[m]):>+7.2f} "
+            f"{np.median(b[m]):>+7.2f} {np.median(C[m]):>6.1f} {np.mean(det[m]):>7.2f}"
+        )
+    s_m, b_m = regions["Subject (core)"], regions["Background"]
+    if s_m.sum() and b_m.sum():
+        sep_L = np.median(L[s_m]) - np.median(L[b_m])
+        sep_C = np.median(C[s_m]) - np.median(C[b_m])
+        busy = np.mean(det[b_m]) / (np.mean(det[s_m]) + 1e-8)
+        hot = float(np.mean(L[b_m] > np.percentile(L[s_m], 95))) * 100.0
+        print(f"Separation: dL* {sep_L:+.1f}, dC* {sep_C:+.1f} (subject - background)")
+        print(f"Background busyness (detail bg/subject): {busy:.2f}")
+        print(f"Background pixels brighter than subject p95: {hot:.1f}%")
+
+
+def run_subject_diff(lab_a, lab_b, deta, detb, alpha, ring):
+    La, Lb = lab_a[..., 0], lab_b[..., 0]
+    Ca, Cb = np.hypot(lab_a[..., 1], lab_a[..., 2]), np.hypot(lab_b[..., 1], lab_b[..., 2])
+    regions = mask_regions(alpha, ring)
+    print("\n=== SUBJECT vs BACKGROUND DIFF (mask proxy) ===")
+    print(f"{'Region':<16} {'L* a->b':>13} {'dL*':>7} {'C* a->b':>13} {'Det %':>7} {'max|dL*|':>9}")
+    print("-" * 70)
+    for name, m in regions.items():
+        if m.sum() == 0:
+            print(f"{name:<16}  (empty)")
+            continue
+        la_m, lb_m = np.median(La[m]), np.median(Lb[m])
+        ca_m, cb_m = np.median(Ca[m]), np.median(Cb[m])
+        da_m, db_m = np.mean(deta[m]), np.mean(detb[m])
+        print(
+            f"{name:<16} {la_m:>5.1f}->{lb_m:<5.1f} {lb_m - la_m:>+7.2f} "
+            f"{ca_m:>5.1f}->{cb_m:<5.1f} {(db_m - da_m) / (da_m + 1e-8) * 100:>+6.1f}% "
+            f"{np.max(np.abs(Lb[m] - La[m])):>9.2f}"
+        )
+
+
+def run_baseline(render_path, crop_box=None, out_dir=".", mask_path=None, ring=6):
     os.makedirs(out_dir, exist_ok=True)
     img, _, lab = load_lab(render_path)
     L, a, b = lab[..., 0], lab[..., 1], lab[..., 2]
@@ -111,6 +195,9 @@ def run_baseline(render_path, crop_box=None, out_dir="."):
                 f"{cell_w:>8.1f}%"
             )
 
+    if mask_path:
+        run_subject_report(lab, det, load_mask(mask_path, L.shape), ring)
+
     if crop_box:
         cx0, cy0, cx1, cy1 = crop_box
         preview = img.copy()
@@ -131,7 +218,7 @@ def run_baseline(render_path, crop_box=None, out_dir="."):
         print(f"\nSaved crop grid preview: {out_crop}")
 
 
-def run_diff(before_path, after_path, hero_box=None, out_dir="."):
+def run_diff(before_path, after_path, hero_box=None, out_dir=".", mask_path=None, ring=6):
     os.makedirs(out_dir, exist_ok=True)
     img_a, _, lab_a = load_lab(before_path)
     img_b, _, lab_b = load_lab(after_path)
@@ -198,6 +285,9 @@ def run_diff(before_path, after_path, hero_box=None, out_dir="."):
             f"{np.median(db[mask]):>+7.2f}"
         )
 
+    if mask_path:
+        run_subject_diff(lab_a, lab_b, deta, detb, load_mask(mask_path, La.shape), ring)
+
     # 1. |dL*| x 15 mask map
     diff_vis = np.clip(np.abs(dL) * 15.0, 0, 255).astype(np.uint8)
     diffmap_path = os.path.join(out_dir, "diffmap.png")
@@ -245,17 +335,21 @@ if __name__ == "__main__":
     p_base.add_argument("render")
     p_base.add_argument("--crop", help="x0,y0,x1,y1 in preview pixels")
     p_base.add_argument("--out-dir", default="./measure")
+    p_base.add_argument("--mask", help="subject alpha PNG (white = subject); adds subject/background stats")
+    p_base.add_argument("--ring", type=int, default=6, help="edge-ring half-width in px")
 
     p_diff = sub.add_parser("diff")
     p_diff.add_argument("before")
     p_diff.add_argument("after")
     p_diff.add_argument("--hero", help="x0,y0,x1,y1 in preview pixels")
     p_diff.add_argument("--out-dir", default="./measure")
+    p_diff.add_argument("--mask", help="subject alpha PNG (white = subject); adds subject/background stats")
+    p_diff.add_argument("--ring", type=int, default=6, help="edge-ring half-width in px")
 
     args = parser.parse_args()
     if args.cmd == "baseline":
         cbox = tuple(map(int, args.crop.split(","))) if args.crop else None
-        run_baseline(args.render, crop_box=cbox, out_dir=args.out_dir)
+        run_baseline(args.render, crop_box=cbox, out_dir=args.out_dir, mask_path=args.mask, ring=args.ring)
     elif args.cmd == "diff":
         hbox = tuple(map(int, args.hero.split(","))) if args.hero else None
-        run_diff(args.before, args.after, hero_box=hbox, out_dir=args.out_dir)
+        run_diff(args.before, args.after, hero_box=hbox, out_dir=args.out_dir, mask_path=args.mask, ring=args.ring)

@@ -4,3 +4,4 @@ scipy
 scikit-image
 opencv-python
 Pillow
+mcp[cli]>=1.2,<2   # tools/darkroom_mcp.py (local-model server); never SDK 2.x (no FastMCP)

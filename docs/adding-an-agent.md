@@ -40,6 +40,9 @@
 - XMP generation is the hard part: give it the schema (`engine.md` §6) and a case JSON as a structural example; validate the XML before sending (`xml.dom.minidom.parseString`).
 - Start with read-only tasks (WB check, critique, plan) before letting it write filters.
 
+## Qwen3.8-27B in Bionic (set up, untested)
+- `agents/local-qwen38-27b/` (adapter, first prompt, MCP config), `docs/local-model-setup.md`, and `tools/darkroom_mcp.py` (file access with the write policy enforced, measurement, image viewer, XMP check) — reusable for any shell-less client.
+
 ## Gemini (already set up)
 - `GEMINI.md` → `WORKFLOW.md` + `agents/gemini/ADAPTER.md`. In Gemini CLI from the repo root: `/memory refresh`, then `/memory show` — both files must be listed.
 - Its old habit of editing the shared rules directly is replaced by inbox proposals; its own habits go in the adapter's **Known tendencies**.

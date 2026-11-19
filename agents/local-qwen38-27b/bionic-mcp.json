@@ -1,0 +1,23 @@
+{
+  "mcpServers": {
+    "photoshop": {
+      "command": "/Users/tanhuynh/dev/adb-mcp/mcp/.venv/bin/python",
+      "args": [
+        "/Users/tanhuynh/dev/adb-mcp/mcp/ps-mcp.py"
+      ]
+    },
+    "photoshop-batch-play": {
+      "command": "/Users/tanhuynh/dev/adb-mcp/mcp/.venv/bin/python",
+      "args": [
+        "/Users/tanhuynh/dev/adb-mcp/mcp/ps-batch-play.py"
+      ]
+    },
+    "darkroom": {
+      "command": "/Users/tanhuynh/dev/darkroom-agents/.venv/bin/python",
+      "args": [
+        "/Users/tanhuynh/dev/darkroom-agents/tools/darkroom_mcp.py"
+      ],
+      "cwd": "/Users/tanhuynh/dev/darkroom-agents"
+    }
+  }
+}

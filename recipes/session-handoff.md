@@ -1,4 +1,4 @@
-# Session handoff — Photoshop + Camera Raw automation (Nov 18 2026, local-model bring-up in progress)
+# Session handoff — Photoshop + Camera Raw automation (Nov 19 2026, local-model experiment paused)
 
 Loaded via `WORKFLOW.md` (+ your `agents/<agent>/ADAPTER.md`); load the matching playbook per image.
 
@@ -26,16 +26,16 @@ Loaded via `WORKFLOW.md` (+ your `agents/<agent>/ADAPTER.md`); load the matching
 - **Render recipe changed (pending merge):** save the ProPhoto 16-bit PNG and convert with `tools/prophoto_to_srgb.py`; `convertToProfile` can pop a dialog and echo SUCCESS when it is cancelled (see inbox). Until merged, verify the profile (`get profile`) before measuring.
 - Pre-Nov-16 nested recipes history: `~/dev/recipes-history.git`. Pre-restructure library: `recipes/archive/`.
 
-## Local model (in progress — Nov 18 2026)
-- Setup is in `agents/local-qwen38-27b/` (adapter, `START.md`, `render-recipe.md`, `bionic-mcp.json`), `docs/local-model-setup.md`, and `tools/darkroom_mcp.py` (shell-less MCP server: read/search/write with the write policy enforced, `prophoto_to_srgb`, `measure_*`, `view_image` 768 px, `validate_xmp`). Runtime is **Bionic** (shares `~/.lmstudio/models`); servers `photoshop`, `photoshop-batch-play`, `darkroom` are configured in its UI.
-- **Benchmark target:** case 0025 (the crane). The model must not read any 0025 file (card, JSON, inbox) — tell it explicitly.
-- **Done:** file access via `darkroom`; render recipe worked (2000×1334 16-bit ProPhoto PNG → `measure/0025-local-base_srgb.png`); vision read the image correctly (species slip: "black" for grey crowned crane). **Not done:** `measure_baseline`, classification/WB/critique, plan, any write.
-- **Blocker:** Qwen3.8-27B-MLX-4bit (~15 GB) ran out of GPU memory (Metal `OutOfMemory`) during prompt processing on the 36 GB Mac, twice, with Photoshop open; swap near full. Slow even before that (dense 27B, long context).
-- **Next (tomorrow):** quit Bionic fully (a `node` helper held 9 GB), lower Photoshop memory to ~40 %, load **Qwen3.6-35B-A3B-MLX-4bit** at **16k** context (has vision files, smaller KV, ~3B active → faster), confirm vision, then repeat the render + `measure_baseline` and the read-only stage. If it works: rename the adapter dir/provenance (`local:qwen3.6-35b-a3b`) and update refs; if not: try an 8B VL model or plan for 64 GB.
-- Findings from the run (adapter "Limits observed"): Bionic wraps tools in `call_mcp_tool` and drops params on parallel calls (one at a time); the model first searched Bionic's empty workspace (use `darkroom` `read_file`); it over-deliberates on unexpected warnings (give it the next tool call explicitly). Inbox: `2026-11-18-claude-0025-png-iccp.md` (PNG embeds ProPhoto iCCP; libpng warning harmless).
+## Local model — PAUSED (Nov 19 2026; decision: not practical on this machine)
+Experiment: Qwen3.8-27B-MLX-4bit in Bionic on an M4 Max Studio, 36 GB, benchmark 0025. Setup is kept and reusable: `agents/local-qwen38-27b/` (adapter, `START.md`, `render-recipe.md`, `bionic-mcp.json`), `docs/local-model-setup.md`, `tools/darkroom_mcp.py`.
+- **What worked:** `darkroom` file access, the render recipe (2000 px ProPhoto PNG → `prophoto_to_srgb` → `measure_baseline`), correct write-policy recital, correct classification (wildlife, crane in grass) and a sound WB read once the chat was short.
+- **What failed:** Metal `OutOfMemory` and multi-minute prefill at AutoFit's 107k context (84k-token prompt, no cache hit); Bionic ignores Local Model Defaults (fix: `lms load --context-length 32768`); fixed overhead ~6.8k tokens; at 32k the window filled (32.3k) before the critique was shown, so work needed a new chat per stage and re-reading ~8k of docs each time; skipped the profile gate, read both playbooks, skipped crop/subject/AI-mask steps, overstated WB confidence, mis-named the species earlier.
+- **Conclusion:** the limit is capability under a growing playbook plus context cost, not only memory. Claude and Gemini do the same workflow faster and more reliably; stepwise supervision of a local model costs more than editing in Photoshop by hand.
+- **If revisited:** a 64 GB Mac (M5 Max-class) removes the memory limit but not the instruction-following gap — first test an open ~70B model through a hosted API on the same 0025 task (gates, classification, plan) before buying hardware. Idea not built: per-stage `measure/<id>-state.md` plus slice reads (`RESUME.md`) to cut re-read cost.
+- Lessons that apply to every agent were moved into `WORKFLOW.md`/adapters (one playbook unless the landscape is itself a subject; same §2 order for all agents; gates).
 
 ## Agents
-- Shared rules `WORKFLOW.md`; adapters `agents/claude/`, `agents/gemini/`, `agents/local-qwen38-27b/` (Bionic, in bring-up), `agents/local/` (template). Inbox: `recipes/inbox/` — 10 proposals awaiting review: 0025 (render-prophoto, radial-maskinverted, cloned-ai-mask, bisect-protocol, calibrations, lens-blur-keys, ps-filter-tool, png-iccp) and 9532 (crop-tool-commit, calibrations, wildlife-composition).
+- Shared rules `WORKFLOW.md`; adapters `agents/claude/`, `agents/gemini/`, `agents/local-qwen38-27b/` (Bionic, paused), `agents/local/` (template). Inbox: `recipes/inbox/` — 10 proposals awaiting review: 0025 (render-prophoto, radial-maskinverted, cloned-ai-mask, bisect-protocol, calibrations, lens-blur-keys, ps-filter-tool, png-iccp) and 9532 (crop-tool-commit, calibrations, wildlife-composition).
 
 ## Open items
 - **AI-mask-first workflow (Nov 19):** `WORKFLOW.md` §2 steps 3–4 changed (crop → subject decision → user-made AI masks → gate → clone); `measure_all.py --mask` built and synthetic-tested (`tools/test_measure_mask.py`). Still to do: read-only check on a real wildlife frame (render + PS `select_subject` alpha vs the Camera Raw mask), verify the intersect form (AI ∩ Luminance/Color Range) with a 1:1 control, merge inbox `cloned-ai-mask` into `engine.md` §5/§6.

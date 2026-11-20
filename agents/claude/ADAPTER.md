@@ -35,5 +35,7 @@ Agent-specific habits and quirks only — editing knowledge goes to `recipes/inb
 - Diffed only `$LCs` when asked what had changed in the filter and said "nothing but the exposure" (9751: the user's global HSL Luminance keys, `$LA_*`, sit outside `$LCs` and explained the whole render change; I had blamed the AI masks) — list and diff **every** key of the filter between reads before naming a cause.
 - Forecasts an effect from a playbook rule without checking that the rule's mask matches the one in use (9751: §F sky numbers are for a ramp ∩ bright range; the whole-sky mask moved 3× more) — state the mask extent next to the forecast.
 - Treats "exactly 0.00 inside the mask" as an empty mask (9751: the AI masks were simply not rendering until the user refreshed them) — a zero ΔL\* is a symptom to explain, not a fact about the mask.
+- Quoted EXIF from a same-named file in another folder (9799: `_52_9799.CR3` exists in 2026-05-09 and 2026-11-01; I said ISO 500, the file was ISO 200) — take the path from `get_documents` / the user, not from a glob.
+- Sent a dependent step in the same turn as a call that could fail (9799: `close` ran after `save_document_as` failed on a parameter name, so the duplicate was lost) — run save and close in order; send a hard `crop` as its own batchPlay call (inside a batch it is silently skipped) and check the size before saving.
 - Keep image previews minimal (session limits): plan in text, one batched call, one composite image per pass.
 - Provenance tag for cases/proposals: `claude`.

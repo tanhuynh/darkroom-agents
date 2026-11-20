@@ -5,7 +5,7 @@ Reuses the repo and the adb-mcp servers; adds one small server (`tools/darkroom_
 ## One time
 1. `cd ~/dev/darkroom-agents && uv pip install -r requirements.txt` (adds `mcp[cli]<2` to the venv).
 2. Install **Bionic** (done) and download `Qwen3.8-27B-MLX-4bit` (done; ~15 GB in `~/.lmstudio/models/lmstudio-community/`).
-3. Load the model → set **Context Length 32768** (not more until measured).
+3. Load the model with an explicit context: Bionic's AutoFit ignores Settings › Local Model Defaults, so run `lms unload --all` then `lms load <model-key> --context-length 32768` (flags: `lms load --help`) and confirm `32768 ctx` in Bionic › Loaded Instances. Not more until measured (107k AutoFit caused out-of-memory and multi-minute prefill).
 4. MCP servers (Bionic UI): `photoshop` and `photoshop-batch-play` are added. **Add a third, `darkroom`** — type `stdio`, command `/Users/tanhuynh/dev/darkroom-agents/.venv/bin/python`, args `/Users/tanhuynh/dev/darkroom-agents/tools/darkroom_mcp.py`, cwd `/Users/tanhuynh/dev/darkroom-agents` (same as `bionic-mcp.json`). Enable all three.
 5. Smoke test the repo server without Bionic: `.venv/bin/python tools/darkroom_mcp.py` should start and wait (Ctrl-C to stop).
 

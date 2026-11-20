@@ -12,5 +12,8 @@ Copy to `agents/local-<model>/ADAPTER.md` when a local model is added (see `docs
 - **Limits observed:** tool-call reliability, XMP generation accuracy, max corrections per batch, image size it can read.
 - **Write policy:** same as every agent — cases directly, rule changes via `recipes/inbox/`. Provenance tag `local:<model>`.
 
+## Same workflow for every agent
+Don't redefine the order of work here: it is `WORKFLOW.md` §2 for all agents (crop → subject decision → user-made AI masks → critique → plan). An adapter may add *gates* that stop the model at those steps (e.g. staged autonomy for a weak model), never reorder or skip them.
+
 ## Context budget hint
 Small context windows: load `WORKFLOW.md` + this adapter + the matching playbook + 1 case; load `engine.md` sections on demand (§5–6 for XMP, §8 for calibrations).

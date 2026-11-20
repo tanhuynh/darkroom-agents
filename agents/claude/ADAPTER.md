@@ -18,6 +18,9 @@ Read with `WORKFLOW.md`. Only Claude-specific plumbing lives here. Two ways Clau
 - Measurement runs locally: `.venv/bin/python tools/measure_all.py baseline|diff …`; open overlays with `open measure/<file>.png`.
 - Normal git identity and SSH push work.
 
+## Same workflow for every agent
+The order of work is `WORKFLOW.md` §2 — don't reorder it here: crop → subject decision → **user-made AI masks** (you read the live filter, record the AI components, quality-gate them on a 1:1 overlay, then clone them per `WORKFLOW.md` §3) → critique → plan. Optional subject alpha for `measure_all.py baseline|diff --mask measure/<alpha>.png --out-dir measure` (a Photoshop `select_subject` / `select_sky` export, "PS proxy"; the export procedure is not verified yet — say so and fall back to region boxes if it fails).
+
 ## Known tendencies (Claude maintains this section)
 Agent-specific habits and quirks only — editing knowledge goes to `recipes/inbox/`.
 - Tends toward restraint: lifts that are too timid on the mid-ground (0265 pass 2: +1% detail) — apply the structure pass (landscape §E) by default.

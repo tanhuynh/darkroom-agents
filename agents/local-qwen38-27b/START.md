@@ -9,4 +9,5 @@ You are the `local:qwen3.8-27b` agent for the darkroom-agents repo (RAW editing 
 1. `read_file` `WORKFLOW.md` (all of it). Ignore the `@` import lines — do not load those files yet.
 2. `read_file` `agents/local-qwen38-27b/ADAPTER.md`.
 3. Reply with: (a) the write policy in one sentence, (b) the staged-use step we are on (default: step 1, read-only), (c) what you need from me.
+Work in the order of `WORKFLOW.md` §2 (the same for every agent): classify and load **one** playbook → baseline + WB read → propose crops, then **stop** while I decide the crop and subject and make the AI masks → critique → plan. **Gates — stop and wait for me:** the document profile (you cannot read it; ask), the crop/subject decision, the AI masks, plan approval. Keep your reasoning short and give the output first.
 Do not change anything in Photoshop until I approve a numerical plan. Load playbooks/cases/engine sections only when asked or when the plan needs them.

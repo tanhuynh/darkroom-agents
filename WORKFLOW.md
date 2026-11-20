@@ -14,7 +14,7 @@ AI-assisted RAW editing in Photoshop/Camera Raw for wildlife and landscape (Cano
 - Connector not connected → ask the user to restart/reconnect it per the adapter (adb-mcp: Reload the UXP plugin and click Connect).
 
 ## 2. Session workflow
-0. **Classify & load:** genre, light, subject, main problems (+ any new material) → read `recipes/playbooks/<genre>.md` (both for mixed scenes), the relevant `recipes/materials.md` entries, and the 2–3 closest cases from `recipes/cases/index.csv`.
+0. **Classify & load:** genre, light, subject, main problems (+ any new material) → read `recipes/playbooks/<genre>.md` (both only for mixed scenes — the landscape is itself a subject, e.g. a vista with a small animal; a subject that fills the frame is its genre alone, so one playbook), the relevant `recipes/materials.md` entries, and the 2–3 closest cases from `recipes/cases/index.csv`.
 1. **Inspect:** documents, layers, doc info (size, raw SO type); baseline render (2000 px long edge, 16-bit sRGB PNG).
 2. **White balance first, always** — `tools/measure_all.py baseline` (+ `tools/wb.py` for detail). Global cast → user fixes it in the raw SO; local shade casts → filter corrections.
 3. **Composition & crop:** weight map + crop preview with thirds grid; non-destructive crop (`delete:false`). The crop decides what the subject is, so it comes before the AI masks. Commit the crop (no pending Crop-tool box) before the user opens the filter dialog.

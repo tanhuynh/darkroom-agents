@@ -37,5 +37,8 @@ Agent-specific habits and quirks only — editing knowledge goes to `recipes/inb
 - Treats "exactly 0.00 inside the mask" as an empty mask (9751: the AI masks were simply not rendering until the user refreshed them) — a zero ΔL\* is a symptom to explain, not a fact about the mask.
 - Quoted EXIF from a same-named file in another folder (9799: `_52_9799.CR3` exists in 2026-05-09 and 2026-11-01; I said ISO 500, the file was ISO 200) — take the path from `get_documents` / the user, not from a glob.
 - Sent a dependent step in the same turn as a call that could fail (9799: `close` ran after `save_document_as` failed on a parameter name, so the duplicate was lost) — run save and close in order; send a hard `crop` as its own batchPlay call (inside a batch it is silently skipped) and check the size before saving.
+- Forecasts a lift/burn from midtone calibrations on a bright or near-white mask (9834: Sky Highlights −0.30 and wall Exp/Highlights gave −8.4 and −9.4 L\* against a forecast of −4…−5; 9751 had already shown Highlights −0.10 → −5…−7 on a sky) — scale from the closest case on the same surface and start at half; state mask extent and surface brightness next to every number.
+- Builds on a step whose output showed an error (9834: the probe revert failed on a helper import error and I printed "reverted" until the readback) — read the filter back after every revert and write.
+- Globs the photo volume (`ls /Volumes/Photos2/root/*/*/…` hung the shell) — list one folder and cap the call (`perl -e 'alarm 25; exec @ARGV' ls …`).
 - Keep image previews minimal (session limits): plan in text, one batched call, one composite image per pass.
 - Provenance tag for cases/proposals: `claude`.

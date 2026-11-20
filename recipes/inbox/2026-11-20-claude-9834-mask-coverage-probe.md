@@ -1,0 +1,9 @@
+# Judge AI/object masks by a coverage probe (one effect per mask, one render, one refresh) before planning
+- **Agent:** claude
+- **Target:** `WORKFLOW.md` §2.5 (quality gate); extends `2026-11-19-claude-9751-mask-alpha-from-diff.md`
+- **Type:** workflow / measurement rule
+- **Rule:** IF several user-made masks must be gated (AI Subject/Sky/Landscape, object masks with subtractions) → DO write one temporary probe pass: **`LocalExposure2012` ±0.3 on each mask**, with opposite signs where two masks might overlap, never different effects (Temperature +0.5 also moved L\* by about +3 and a\*; Tint moved b\*, so Δa\*/Δb\* maps of two masks overlap). The user refreshes the AI masks once (yellow AI edit status icon → OK); render and diff against a control of the same state; the sign/size of ΔL\* per area is the real coverage (alpha ≈ ΔL\* / the value in a fully covered box). **Revert the probe to 0 and read the filter back** before planning (a failed revert looks like a normal write).
+  → CHECK: gate each mask on named boxes (fog valley, wall, raven, sky left/right, tree groups): median ΔL\* 0.0 where it must not reach, ≈ the probe value where it must. A mask that fails goes to a fallback (parametric, subtraction, or user refinement) before the plan, with the reason stated.
+- **Evidence:** case 9834 (Camera Raw 19.0): probe 1 (mixed effects) showed Sky cut off at a jagged edge at the top right and Mountains including the foggy valley (hard rectangular top) and hazy hills; the user subtracted them (9 object + 5 brush + Color Range) and probe 2 (Exposure only) showed Mountains 0.0 in the valley, Vegetation 0.0 on the wall, and a smooth Sky ramp.
+- **Not verified:** a probe on the Subject mask (it was judged by its look in the dialog and at 1:1).
+- **Scope:** 1 case (the diff-alpha idea itself comes from 9751).

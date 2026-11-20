@@ -1,0 +1,9 @@
+# The real Camera Raw mask can be measured: subtract a control render from a render with a strong test Exposure on that mask, and use it as the `--mask` alpha
+- **Agent:** claude
+- **Target:** WORKFLOW §2 step 5 ("Optional measurement alpha: a Photoshop `select_subject` export, labelled PS proxy") and engine.md §2 (Measurement loop, mask verification)
+- **Type:** engine fact / change rule
+- **Rule:** IF a Camera Raw AI mask (Subject, People part, Sky …) needs measuring → DO make a control render of the unedited, cropped state, write one correction with a strong value on that mask (e.g. `LocalExposure2012` +0.25 stored), have the user refresh the AI masks, render again, and take `alpha = clip(ΔL* / median ΔL* inside the mask, 0, 1)` → save as a PNG and pass `measure_all.py baseline|diff --mask alpha.png` → CHECK the subject area fraction is plausible (9751: 17.7%) and ΔL\* outside the mask is 0.00. Restore the filter afterwards and read it back (byte-identical XML).
+  - This is the **actual** mask (edges and thin hair included), same frame as the render; the Photoshop `select_subject` export remains the fallback and should be labelled "PS proxy".
+- **Evidence:** case 9751 (Subject at +0.25 stored): jacket +19.0, face +15.7, hair +17.9 L\*, nothing outside the person. `measure_all.py --mask` on real data, final pass vs control: subject core ΔL\* +1.3 (detail +12%), background +0.5, edge ring +0.5; subject − background L\* −6.3 → −5.5; background pixels brighter than the subject p95 40.1% → 20.6%; the synthetic test (`tools/test_measure_mask.py`) passed. This closes the "read-only check on a real frame" open item for `--mask` (the PS-proxy comparison itself was not done).
+- **Conflicts with:** none (replaces "PS proxy" as the preferred source, keeps it as a fallback).
+- **Scope:** general; seen on 1 case (9751).

@@ -1,0 +1,11 @@
+# Portrait / skin: a plain Exposure lift on Facial Skin whitens it — use Highlights down + a little Saturation instead (and a portrait playbook is missing)
+- **Agent:** claude
+- **Target:** materials.md (new entry: Human skin) and a new `playbooks/portrait.md` (or a section in wildlife.md for subject-vs-background rules)
+- **Type:** material note / new rule
+- **Rule:** IF a portrait's skin reads washed out after a lift → DO on the Facial Skin mask keep Exposure at 0, Highlights −0.15, Saturation +0.06 (no Clarity; Texture 0 unless softening is wanted) → CHECK cheek median L\* / C\* / hue against the control: hue must stay within ~1° (≈56°), C\* loss < 3, L\* gain < ~6.
+  - Material: fair skin under overcast sits at L\* 61–69, C\* ~37, hue ~56°; **Exposure +0.05 (with Highlights −0.10) gave cheek L\* +9 and C\* −5** at the same hue → it reads "too white" even though the hue holds.
+  - Eyes/teeth/hair: Iris Exp +0.06 + Texture +0.15, Sclera/Teeth Exp +0.03, Teeth Sat −0.10; hair Texture +0.10 without Clarity; clothes Texture +0.10, Clarity +0.06 — all clean at 1:1 but not measured in isolation (small areas; 2000 px under-reads them).
+  - Environmental portrait: crop first (eyes on the upper-third line), name the masks in the critique, then let the user make them; Select Sky − Subject for the cloud, Natural Ground − Subject for the backdrop.
+- **Evidence:** case 9751 (cheek medians, control → pass 2 → pass 3): right 68.6/36.5/56.9° → 77.7/31.6/55.5° → 74.0/34.1/56.1°; left 61.0/37.2/56.1° → 69.8/33.7/54.2° → 66.1/35.6/55.1°. The pass-2 numbers include a user HSL Luminance Orange +23 (global), so the skin Exposure effect alone is about +3 L\* per +0.05.
+- **Conflicts with:** none. There is no portrait or skin entry yet; the values above are a first guess from one case.
+- **Scope:** this person/this light; seen on 1 case (9751) — keep marked *(1 case)*.

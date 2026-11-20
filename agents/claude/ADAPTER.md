@@ -19,7 +19,7 @@ Read with `WORKFLOW.md`. Only Claude-specific plumbing lives here. Two ways Clau
 - Normal git identity and SSH push work.
 
 ## Same workflow for every agent
-The order of work is `WORKFLOW.md` §2 — don't reorder it here: crop → subject decision → **user-made AI masks** (you read the live filter, record the AI components, quality-gate them on a 1:1 overlay, then clone them per `WORKFLOW.md` §3) → critique → plan. Optional subject alpha for `measure_all.py baseline|diff --mask measure/<alpha>.png --out-dir measure` (a Photoshop `select_subject` / `select_sky` export, "PS proxy"; the export procedure is not verified yet — say so and fall back to region boxes if it fails).
+The order of work is `WORKFLOW.md` §2 — don't reorder it here: crop → critique (it names the masks it needs) → **user-made AI masks** (you read the live filter, record the AI components, quality-gate them on a 1:1 overlay, then clone them per `WORKFLOW.md` §3) → plan. Optional subject alpha for `measure_all.py baseline|diff --mask measure/<alpha>.png --out-dir measure` (a Photoshop `select_subject` / `select_sky` export, "PS proxy"; the export procedure is not verified yet — say so and fall back to region boxes if it fails).
 
 ## Known tendencies (Claude maintains this section)
 Agent-specific habits and quirks only — editing knowledge goes to `recipes/inbox/`.
@@ -32,5 +32,8 @@ Agent-specific habits and quirks only — editing knowledge goes to `recipes/inb
 - Judges small local corrections at 2000 px (0025: the Eye radial read 0.00 there and was +1.5 L* / catchlight +3.2 L* at 1:1) and states a cause for a visual change before a control (0025: "Push may read weaker after the blur" — the four-way control showed no change) — render 1:1 for small masks, run the control first.
 - After a Photoshop crash/restart, assumes the document is where it left it (0025: the last two scripted edits were gone, document `_id` and folder changed) — read the live filter and compare with the last written XMP first.
 - Re-applies a change when the user says Photoshop shows something else instead of looking at the app state (9532: a pending Crop-tool box silently reverted the crop twice; the screenshot's status bar showed the real size) — when the user's view and the readback disagree, ask for a screenshot / tool state first, and never script while a Crop-tool box may be pending.
+- Diffed only `$LCs` when asked what had changed in the filter and said "nothing but the exposure" (9751: the user's global HSL Luminance keys, `$LA_*`, sit outside `$LCs` and explained the whole render change; I had blamed the AI masks) — list and diff **every** key of the filter between reads before naming a cause.
+- Forecasts an effect from a playbook rule without checking that the rule's mask matches the one in use (9751: §F sky numbers are for a ramp ∩ bright range; the whole-sky mask moved 3× more) — state the mask extent next to the forecast.
+- Treats "exactly 0.00 inside the mask" as an empty mask (9751: the AI masks were simply not rendering until the user refreshed them) — a zero ΔL\* is a symptom to explain, not a fact about the mask.
 - Keep image previews minimal (session limits): plan in text, one batched call, one composite image per pass.
 - Provenance tag for cases/proposals: `claude`.

@@ -16,7 +16,7 @@ Read with `WORKFLOW.md`. Only Gemini-specific plumbing lives here.
 - If the IDE doesn't read `GEMINI.md`, start the session with: "Read WORKFLOW.md and agents/gemini/ADAPTER.md first."
 
 ## Same workflow for every agent
-The order of work is `WORKFLOW.md` §2 — don't reorder it here: crop → subject decision → **user-made AI masks** (you read the live filter, record the AI components, quality-gate them on a 1:1 overlay, then clone them per `WORKFLOW.md` §3) → critique → plan. Optional subject alpha for `measure_all.py baseline|diff --mask measure/<alpha>.png --out-dir measure` (a Photoshop `select_subject` / `select_sky` export, "PS proxy"; the export procedure is not verified yet — say so and fall back to region boxes if it fails).
+The order of work is `WORKFLOW.md` §2 — don't reorder it here: crop → critique (it names the masks it needs) → **user-made AI masks** (you read the live filter, record the AI components, quality-gate them on a 1:1 overlay, then clone them per `WORKFLOW.md` §3) → plan. Optional subject alpha for `measure_all.py baseline|diff --mask measure/<alpha>.png --out-dir measure` (a Photoshop `select_subject` / `select_sky` export, "PS proxy"; the export procedure is not verified yet — say so and fall back to region boxes if it fails).
 
 ## Known tendencies (Gemini maintains this section)
 Agent-specific habits and quirks only — editing knowledge goes to `recipes/inbox/`.

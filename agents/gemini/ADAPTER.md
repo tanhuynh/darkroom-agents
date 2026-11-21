@@ -10,10 +10,13 @@ Read with `WORKFLOW.md`. Only Gemini-specific plumbing lives here.
 - **Measurement:** `.venv/bin/python tools/measure_all.py baseline|diff … --out-dir measure` (never ad-hoc scripts).
 - **Show overlays:** `open measure/<composite>.png` right after each `measure_all.py` run.
 - **Git:** local identity and SSH work; commit in `darkroom-agents` only. The user pushes unless asked otherwise.
+- **Checkpoints (`WORKFLOW.md` §2 step 9):** the commands are `/clear` (next image) and `/compress` (same image). `/compress` takes no focus instructions, so write `measure/<id>-state.md` first; it is the source of truth after compression. `GEMINI.md` stays loaded through either one (check with `/memory show` if unsure), so don't re-read it — read the state file and the live filter.
+- **Context gauge:** the CLI footer shows the context left, and `/stats` shows the session's token use. Gemini sees neither, so act on the user's report: context left ≤ 40% → checkpoint at the next phase boundary; ≤ 20% → checkpoint now; a quota or rate-limit error → checkpoint + handoff, then stop. Prefer these checkpoints over automatic compression, whose summary does not know what the recipe needs.
 
 ## Antigravity IDE
 - MCP config: `.agents/mcp_config.json` (same servers). Embed overlay PNGs inline in the response instead of `open`.
 - If the IDE doesn't read `GEMINI.md`, start the session with: "Read WORKFLOW.md and agents/gemini/ADAPTER.md first."
+- **Checkpoints:** follow `WORKFLOW.md` §2 step 9; continue the image in a new conversation from `measure/<id>-state.md` (and the start line above if `GEMINI.md` isn't read).
 
 ## Same workflow for every agent
 The order of work is `WORKFLOW.md` §2 — don't reorder it here: crop → critique (it names the masks it needs) → **user-made AI masks** (you read the live filter, record the AI components, quality-gate them on a 1:1 overlay, then clone them per `WORKFLOW.md` §3) → plan. Optional subject alpha for `measure_all.py baseline|diff --mask measure/<alpha>.png --out-dir measure` (a Photoshop `select_subject` / `select_sky` export, "PS proxy"; the export procedure is not verified yet — say so and fall back to region boxes if it fails).

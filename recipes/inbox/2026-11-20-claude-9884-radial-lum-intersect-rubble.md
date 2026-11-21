@@ -1,0 +1,9 @@
+# Radial ∩ Luminance Range − cloned hero object mask: verified headless; calibration for calming a bright rubble mound
+- **Agent:** claude
+- **Target:** WORKFLOW §2 step 6 ("intersect forms are unverified"); engine.md §6 (blend rules, object-mask clone); playbooks/landscape.md §D
+- **Type:** engine fact + new rule
+- **Rule:** IF a bright, textured mound at a frame edge pulls the eye (its top L\* ≈ 47–58, the rock above ≈ 25) → DO a scripted correction: Radial (`Flipped="true"`, feather 60, box 15–20% larger than the mound, may exceed the frame) as component 1 (blend 0), a **Luminance Range** component with `MaskBlendMode="1"` + `MaskInverted="true"` (intersect) `LumRange="0.34 0.42 0.80 0.90"` (full effect above L\* 42, fades in from 34), then the hero object component cloned with fresh `MaskSyncID`s (Image **and** its nested Paint inside `crs:Gesture`) and `MaskBlendMode="1"` (subtract). Values: Exp −0.08 (dialog −0.32), Highlights −0.15, Sat −0.05, Texture −0.15, Clarity −0.10.
+  → CHECK changes only inside the radial (largest change outside ≤ 0.2 L\*); mound top p90 −6 L\*, median in-mask −3; no hard edge at 1:1; texture still readable; the other mask's subject untouched.
+- **Evidence:** case 9884: in-mask ΔL\* median −3.12 (p5 −7.40, p95 −0.58), box p90 49.7 → 43.7, changed area 1.9% of the frame, bbox x 0.45–0.85 / y 0.85–1.0 (inside the radial); 1:1 crop 3000×842 clean, no halo at the spire foot. Radial coordinates were converted from the cropped window to the uncropped SO: x×(6963/8192), y×(…+819)/5464.
+- **Conflicts with:** none. Radial ∩ Color Range was verified on 9799; this adds Radial ∩ Luminance Range (non-AI) and the clone of an object mask with paint dabs. **AI ∩ Luminance/Color Range is still unverified.**
+- **Scope:** seen on 1 case (9884). Forecast was −4…−5 on the bright top; the top p90 reached −6, the in-mask median −3.

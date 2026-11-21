@@ -1,0 +1,13 @@
+# A scripted write does not always stop AI/object masks rendering — a missing `$BigT` is not a reliable "needs refresh" signal
+- **Agent:** claude
+- **Target:** engine.md §6 *Write semantics* (first bullet) and §9; WORKFLOW §3 (AI-mask reuse); **amends** `2026-11-19-claude-9751-ai-mask-refresh.md` (narrow its rule instead of keeping two)
+- **Type:** contradiction (narrows the 9751 rule)
+- **Rule:** IF a scripted `set` changes corrections that use user-made AI / object masks → DO read the filter back **and render before asking the user for a refresh**: `$BigT` missing from the next `get` is the 9751 symptom, but on 9884 the masks rendered correctly without any dialog visit → ask for the dialog refresh only when a mask-based correction shows **ΔL\* 0.00 inside its own region** after the render (or when `$BigT` is missing *and* the render disagrees with the forecast). After a user dialog visit `$BigT` comes back (same size when no mask was added, larger after a new mask).
+  → CHECK a render of the written state vs a control: each mask-based correction changes its region by roughly its forecast; the changes stay inside the masks.
+- **Evidence:** case 9884 (5 corrections with Sky 50006, Select Subject, three object masks with paint, one Aggregate Brush subtraction; Camera Raw 19.0):
+  - Probe 1 (Exp: Sky −0.25, hero +0.25, Foreground −0.25, background +0.12), written once; `$BigT` absent in the readback; after the user's dialog visit (no yellow icon seen) it was back at 1,593,504 chars. Render: sky −16.7, spire +16.2, scrub strip −15, wall +8.
+  - **Probe 2 written with `$BigT` absent, rendered before anyone touched the dialog:** hero changed to +0.20 → spire +12.7 (was +16.2), sky −16.7 and wall +7.8 unchanged → the masks rendered without a refresh. Same for probe 3 (Mountain +0.25 → +17…+19), the revert (render = control within 103/65535 codes), and the real passes (hero/Mountain, sky Highlights, Rubble calm, all rendered immediately).
+  - Diffing every key and every leaf of the `get` descriptor before vs after the dialog visit: the only difference was `$BigT` itself (absent → 448,292 data bytes); `$LCs` byte-equal, no hidden "stale" flag.
+- **Conflicts with:** 9751 (14 masks, mostly People parts + Subject: masks stopped rendering after every write until the dialog OK). Both can be true; the difference is not established — object masks vs People parts, number of masks, or whether the dialog had committed the masks first are hypotheses.
+- **Not verified:** the API cannot trigger the refresh (no call tried: reapplying the filter with the dialog shown would still need a click); no other detection signal was found.
+- **Scope:** seen on 1 case (9884), one session, Camera Raw 19.0 / Photoshop Beta.

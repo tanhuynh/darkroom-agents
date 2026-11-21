@@ -40,5 +40,10 @@ Agent-specific habits and quirks only — editing knowledge goes to `recipes/inb
 - Forecasts a lift/burn from midtone calibrations on a bright or near-white mask (9834: Sky Highlights −0.30 and wall Exp/Highlights gave −8.4 and −9.4 L\* against a forecast of −4…−5; 9751 had already shown Highlights −0.10 → −5…−7 on a sky) — scale from the closest case on the same surface and start at half; state mask extent and surface brightness next to every number.
 - Builds on a step whose output showed an error (9834: the probe revert failed on a helper import error and I printed "reverted" until the readback) — read the filter back after every revert and write.
 - Globs the photo volume (`ls /Volumes/Photos2/root/*/*/…` hung the shell) — list one folder and cap the call (`perl -e 'alarm 25; exec @ARGV' ls …`).
+- Describes an image to the user as "the picture above" after reading it with the Read tool (9884: in the terminal the user saw nothing; only I did) — run `open measure/<file>` for every overlay and name the file in the same message; the user asked for this explicitly.
+- Puts a slider in a plan that my own calibration says shows nothing (9884: sky Dehaze +0.05; `engine.md` §8 needs ≥ +0.25 on hazy areas) — check each planned value against §8 before writing the plan.
+- Forecasts from a case with a different surface or mask shape (9884: sky Highlights −0.08 gave −0.8 L\*, forecast −3, from a near-white ramp and a textured whole-sky mask; 9834 overshot the other way) — name the closest case on the *same* surface and mask shape, say "hypothesis", and scale from it.
+- Judges a crop by the frame and not by the hero's extent (9884: a bottom trim cut the spire's base; the hero mask reached the last row) — measure where the hero starts and ends before proposing a window.
+- Says "the saved filter" for the live filter of the open, saved document (9884) — say what was read (open document vs the TIFF on disk).
 - Keep image previews minimal (session limits): plan in text, one batched call, one composite image per pass.
 - Provenance tag for cases/proposals: `claude`.

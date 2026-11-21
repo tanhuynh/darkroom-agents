@@ -1,0 +1,13 @@
+# Calibrations from 0233: ridge calm, dark-rock dodge, strip burn (landscape, midday sunlit rock)
+- **Agent:** claude
+- **Target:** engine.md §8 (Calibrations) / playbooks/landscape.md §D, §E
+- **Type:** engine fact (starting points, 2000 px renders)
+- **Rule (starting points; render → measure → adjust):**
+  - **Bright sunlit ridge** (L\* 59–69), radial ∩ Lum 0.35/0.50/0.95/1.0, feather 70: Exp −0.07 → about −4 L\*; **Exp −0.10 + Highlights −0.15 + Sat −0.05 + Texture −0.25 + Clarity −0.10 → −5.1 (bottom) / −5.7 (mid) L\*, detail −6…−10%**. The playbook §D −0.06…−0.08 is on the low side for a bright sunlit mass.
+  - **Dark rock** (L\* ~26–30), radial ∩ Lum 0.10/0.20/0.55/0.70: **Exp +0.10 + Shadows +0.12 → +5.4 L\* (it spilled into the next cell, +4.8); Exp +0.07 + Shadows +0.08 with the radial R 0.42 → +4.0**; crevices (L\* < 15) unchanged at 9.8.
+  - **Mid-ground structure** (§E) Exp +0.08 → +2.0 (left) / +3.4 (spires) L\*, detail +9…12%; user lowered it to +0.0625.
+  - **Strip burn** on a bright/mixed strip (L\* 39–66): Exp −0.07 + Highlights −0.15 → −5.5…−6.3 L\* at the bottom edge (the bright right end −6.3, the left −5.5).
+  - **Lesson:** my forecasts ran 20–40% low on all three; give the forecast range upper end first.
+- **Evidence:** case 0233 (regional table of `measure_all.py diff`, passes 1–3 and the strip pass); see the card.
+- **Conflicts with:** landscape §D "Exp −0.06…−0.08" (narrow it to mid-bright masses) — not a contradiction yet, one case.
+- **Scope:** seen on 1 case; a Bryce midday frame.

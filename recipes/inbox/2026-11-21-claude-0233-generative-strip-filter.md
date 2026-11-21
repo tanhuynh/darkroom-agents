@@ -1,0 +1,8 @@
+# Generative Expand strips are separate Smart Objects outside the raw filter: grade them with their own filter, and a burn on a thin strip does not move the weight
+- **Agent:** claude
+- **Target:** engine.md §5 (apply, ACCESS) and §9 (who does what); playbooks/landscape.md §B (crop/expand)
+- **Type:** engine fact (+ new rule *(1 case)*)
+- **Rule:** IF the user expands the canvas with Generative Expand → the strips are their own `SMARTOBJECT` layers (0233: top y 0–624, bottom y 4605–5094, overlap about 107 px with the raw SO at y 517–4714), the raw SO's filter does **not** reach them, and they must not be merged (a merge rasterizes them and loses the layer to filter) → DO read their bounds (`get_layer_bounds`), then `select` the strip layer and apply a **new** Camera Raw Filter with the engine §5 "apply" form (`$LCs` only; a `get` of it returns `$CrVe/$PrVN/$PrVe/$LCs` + `_options`); use a linear gradient whose Zero is **below the overlap** (0233: ZeroY 0.30 of a 489 px strip → ΔL\* 0.00 above the strip, no seam); revert = remove that one smart filter → CHECK the raw filter reads back unchanged, and the weight grid: a burn on a strip that is ~9% of the height moved the bottom row only 60% → 58%.
+- **Evidence:** case 0233: strip burn Exp −0.07, Highlights −0.15, Sat −0.05, Texture −0.15, Clarity −0.10 → ΔL\* −3.5…−4.7 at the ramp start, −5.5…−6.3 at the bottom edge (forecast −3…−5), Δb\* 0.00.
+- **Conflicts with:** WORKFLOW §3 ("one Camera Raw Filter on the raw SO") — the generated pixels cannot be reached any other way; the user agreed to a second filter on that layer.
+- **Scope:** seen on 1 case.

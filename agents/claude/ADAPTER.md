@@ -58,5 +58,8 @@ Agent-specific habits and quirks only — editing knowledge goes to `recipes/inb
 - Takes a premise without checking the file (0159: built a polariser argument on "47 mm"; EXIF said 24 mm) — read EXIF from the saved path as soon as one exists, and say which focal length an argument rests on.
 - Blames a correction from a proxy metric the user does not see (0159: patchiness pointed at 'Cloud calm'; the user's toggle showed 'Sky lift'; the AI Sky mask's edge was the cause) — ask for a screenshot early and measure the speckle of each correction's own effect (variant minus all-off) in the region shown.
 - Writes a clever one-line analysis script that fails to parse (0159: twice) — keep analysis scripts simple and print an intermediate result.
+- Tried a probe write before the plan was approved (0233: the permission classifier denied it) — a probe is a write: name it in the plan or ask for it explicitly before running it.
+- Under-forecasts local lifts and burns on radial ∩ Luminance masks and ramps (0233: all three came in 20–40% stronger than forecast: dodge +5.4 vs +4, ridge about −5 vs −4, strip burn −6 vs −3…−5) — give the range with the upper end first and start at ~70% of the calibration.
+- Hands the user a proxy the file does not have (0233: a banded 2000 px cloud was flagged as a possible file problem; the 1:1 crop was smooth) — take a 1:1 crop of the area before raising a texture/banding concern.
 - Keep image previews minimal (session limits): plan in text, one batched call, one composite image per pass.
 - Provenance tag for cases/proposals: `claude`.

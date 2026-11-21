@@ -24,7 +24,12 @@ AI-assisted RAW editing in Photoshop/Camera Raw for wildlife and landscape (Cano
    - Optional measurement alpha: a Photoshop `select_subject` / `select_sky` export, labelled "PS proxy" (not the Camera Raw mask), for `measure_all.py baseline|diff --mask alpha.png` (subject / background / edge-ring stats); only when the mask passed the gate, otherwise measure by regions.
 6. **Plan in text, wait for approval:** full numerical Camera Raw plan (stored XMP values + dialog equivalents); each correction names its mask source (AI-mask clone / inverted / subtracted, parametric, or intersect). Intersect forms (AI ∩ Luminance/Color Range or gradient) are unverified — flag them as experiments with a 1:1 control. No sliders before the user approves.
 7. **Apply as one batched call**, render, run `tools/measure_all.py diff before after --hero …`, show the overlays (`before_after`, `diffmap`, `dbmap` when color changed, `hero_zoom`). Adjust in follow-up passes, each approved.
-8. **Archive** after the user saves the TIFF (§5), then delete the render PNGs in `measure/` (keep the folder).
+8. **Archive** after the user saves the TIFF (§5), then delete the render PNGs and `<id>-state.md` in `measure/` (keep the folder).
+9. **Context checkpoints** (long sessions — context and usage limits): at the end of an image, after any pass that produced 3+ renders or measure diffs, and before changing phase on the same image (e.g. global tone → local work → crop/finish):
+   - Write `measure/<id>-state.md` (scratch, not committed): document path + size, §2 step reached, crop, AI-mask components (type, `MaskSyncID`), passes applied (stored + dialog values, mask source), the hero measurements that still matter, pending plan / open decisions.
+   - Tell the user in one line that it is safe to **clear** (image done → next image) or **compact** (continue this image). The agent cannot run these commands; your adapter names them.
+   - After a clear/compact: read `measure/<id>-state.md` and the live filter before the next write. Do not re-render just to rebuild context.
+   - Usage limit nearly spent → checkpoint, update `recipes/session-handoff.md`, and stop; compacting does not restore usage.
 
 ## 3. Camera Raw rules (details: `recipes/engine.md`)
 - **Non-destructive:** never repaint or generate pixels; sculpt inside **one Camera Raw Filter** on the raw Smart Object so every adjustment stays editable by hand.

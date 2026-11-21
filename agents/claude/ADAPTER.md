@@ -10,6 +10,7 @@ Read with `WORKFLOW.md`. Only Claude-specific plumbing lives here. Two ways Clau
 - **Writing files:** edit in the cloud workspace, then `device_commit_files` to the repo path (or edit in place with `device_bash`).
 - **Git:** the VM has no identity → `git -c user.name="Tan Huynh" -c user.email=<from git log> commit …`. SSH to GitHub is blocked from the VM → the user pushes. `gh` GraphQL is blocked; REST works only for repos attached to the session.
 - **Long calls:** heavy `set`s/renders may time out while succeeding → re-read state before retrying.
+- **Checkpoints:** follow `WORKFLOW.md` §2 step 9; there is no user compact command, so continue the image in a new chat from `measure/<id>-state.md`.
 
 ## B. Claude Code (terminal on the Mac)
 - **Photoshop access:** connector = adb-mcp (`.mcp.json`) — implements `engine.md` capabilities C1–C7 via its ACCESS sections (§1–5, §10). On a connector swap, update this line and the MCP config.
@@ -17,6 +18,8 @@ Read with `WORKFLOW.md`. Only Claude-specific plumbing lives here. Two ways Clau
 - MCP servers come from `.mcp.json` in the repo (repo-locked `uv run --directory ~/dev/adb-mcp/mcp mcp run …`; never `--with mcp`).
 - Measurement runs locally: `.venv/bin/python tools/measure_all.py baseline|diff …`; open overlays with `open measure/<file>.png`.
 - Normal git identity and SSH push work.
+- **Checkpoints (`WORKFLOW.md` §2 step 9):** the commands are `/clear` (next image) and `/compact` (same image). Suggest the compact with focus instructions, e.g. `/compact keep measure/<id>-state.md contents, layer stack, applied and pending edits; drop render images and measure_all output`. `CLAUDE.md` (WORKFLOW + this adapter + handoff) reloads by itself after either one, so don't re-read it — read the state file and the live filter.
+- **Status line** (`~/.claude/statusline.sh`) shows context % and the 5-hour usage %. Claude cannot see it, so act on the user's report: context ≥ 60% → checkpoint at the next phase boundary; ≥ 80% → checkpoint now; 5-hour ≥ 90% → checkpoint + handoff, then stop. Prefer these checkpoints over auto-compact, whose summary does not know what the recipe needs.
 
 ## Same workflow for every agent
 The order of work is `WORKFLOW.md` §2 — don't reorder it here: crop → critique (it names the masks it needs) → **user-made AI masks** (you read the live filter, record the AI components, quality-gate them on a 1:1 overlay, then clone them per `WORKFLOW.md` §3) → plan. Optional subject alpha for `measure_all.py baseline|diff --mask measure/<alpha>.png --out-dir measure` (a Photoshop `select_subject` / `select_sky` export, "PS proxy"; the export procedure is not verified yet — say so and fall back to region boxes if it fails).

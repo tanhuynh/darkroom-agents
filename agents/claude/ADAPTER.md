@@ -45,5 +45,9 @@ Agent-specific habits and quirks only — editing knowledge goes to `recipes/inb
 - Forecasts from a case with a different surface or mask shape (9884: sky Highlights −0.08 gave −0.8 L\*, forecast −3, from a near-white ramp and a textured whole-sky mask; 9834 overshot the other way) — name the closest case on the *same* surface and mask shape, say "hypothesis", and scale from it.
 - Judges a crop by the frame and not by the hero's extent (9884: a bottom trim cut the spire's base; the hero mask reached the last row) — measure where the hero starts and ends before proposing a window.
 - Says "the saved filter" for the live filter of the open, saved document (9884) — say what was read (open document vs the TIFF on disk).
+- Probes with scripted writes after the user has painted a brush mask (9944: the Hero brush was dropped by the next dialog session, twice, and an empty brush intersect then killed the hero mask) — `WORKFLOW.md` §3 says brush last: warn before any write, and leave a user-painted brush for after the last scripted pass and the Denoise.
+- Forecasts a lift from the previous pass when the change also removes an offsetting effect (9944: Dehaze +0.25 → 0 took away about −5 L\*, so Shadows + Exp gave +7 vs pass 2 against my +3.5) — forecast from the unedited tone and list what each removed setting contributed.
+- Claims a crop will lower a heavy zone without measuring the cropped render (9944: crop A raised Bot-Left 30.3 → 35.7%) — render the window and read its weight grid before saying so (`measure_all.py --crop` prints the whole-frame grid).
+- Uses `timeout` on macOS (not installed; 9944) — use `perl -e 'alarm N; exec @ARGV'`.
 - Keep image previews minimal (session limits): plan in text, one batched call, one composite image per pass.
 - Provenance tag for cases/proposals: `claude`.

@@ -3,7 +3,7 @@
  "raw_so_manual": {
   "Temperature/Tint": "unchanged (rock hue 55 deg; fog natural cool b* -10)",
   "Calibration": "Blue primary Hue -6, Saturation +9 (user, set in the filter dialog; stored $BHue -6, $BSat 9; $RHue $RSat $GHue $GSat $BlkB = 0)",
-  "Other": "no Remove, no Lens Blur, no denoise (noise not checked)"
+  "Other": "no Remove, no Lens Blur, no denoise (the user judged noise not an issue at 100%)"
  },
  "ai_masks_user": [
   "Sky (Landscape 50006) - sky/fog, clean edge against the rock",

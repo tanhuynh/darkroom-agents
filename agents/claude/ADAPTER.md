@@ -49,5 +49,11 @@ Agent-specific habits and quirks only — editing knowledge goes to `recipes/inb
 - Forecasts a lift from the previous pass when the change also removes an offsetting effect (9944: Dehaze +0.25 → 0 took away about −5 L\*, so Shadows + Exp gave +7 vs pass 2 against my +3.5) — forecast from the unedited tone and list what each removed setting contributed.
 - Claims a crop will lower a heavy zone without measuring the cropped render (9944: crop A raised Bot-Left 30.3 → 35.7%) — render the window and read its weight grid before saying so (`measure_all.py --crop` prints the whole-frame grid).
 - Uses `timeout` on macOS (not installed; 9944) — use `perl -e 'alarm N; exec @ARGV'`.
+- Applies a lesson to a mechanism it does not fit (0159: warned that a brush could be dropped on the object mask 'left ridge'; its `Mask/Paint` is the object-selection gesture, the dropped data on 9944 was a `MaskBrushTable`) — check the XML component (`MaskBrushTable` vs `crs:Gesture`) before warning.
+- Quotes stored values where the user speaks dialog units (0159: the user's "−0.15" was −0.0375 stored; I wrote −0.15 stored) — give both stored and dialog values every time and confirm which one is meant when the user quotes a bare number.
+- Answers a dispute from the wrong region (0159: said the vignette subtract sat over "the brightest sky" using the far-right strip, not the user's radial footprint) — recompute for the exact footprint the user describes before asserting.
+- Takes a premise without checking the file (0159: built a polariser argument on "47 mm"; EXIF said 24 mm) — read EXIF from the saved path as soon as one exists, and say which focal length an argument rests on.
+- Blames a correction from a proxy metric the user does not see (0159: patchiness pointed at 'Cloud calm'; the user's toggle showed 'Sky lift'; the AI Sky mask's edge was the cause) — ask for a screenshot early and measure the speckle of each correction's own effect (variant minus all-off) in the region shown.
+- Writes a clever one-line analysis script that fails to parse (0159: twice) — keep analysis scripts simple and print an intermediate result.
 - Keep image previews minimal (session limits): plan in text, one batched call, one composite image per pass.
 - Provenance tag for cases/proposals: `claude`.

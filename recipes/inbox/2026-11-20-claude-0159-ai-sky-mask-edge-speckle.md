@@ -1,0 +1,9 @@
+# The AI Sky mask's coarse edge makes speckled cloud edges when a Luminance fade rides on it; rebuild the sky correction as gradient ∩ Luminance − Subject
+- **Agent:** claude
+- **Target:** WORKFLOW §2 step 5 (quality gate) and §3; engine.md §6 (mask schema); playbooks/landscape.md §F
+- **Type:** new rule (+ a measurement method)
+- **Rule:** IF a sky/cloud correction uses the AI **Sky** mask and the sky meets bright clouds → the AI mask (`FullMaskSize 2879,1920`, upscaled) stops irregularly about 30 px before the cloud edge and has no feather; combined with a Luminance Range fade (here 0.30/0.42) it gives each pixel a different strength and shows as speckle/blotches at 100%+ (the user saw it at 109%). DO rebuild the correction without the AI Sky mask: **linear gradient** over the top of the frame (Zero y 0.74 → Full 0.66, add) **∩ Luminance Range** with a **wide fade** (0.00/0.05/0.28/0.50 for the lift, 0.00/0.05/0.35/0.55 for a burn) **− Subject** (blend 1) so the rock edge comes from the accurate Subject mask; keep the AI Sky mask only where an edge exactly at the cloud is wanted (e.g. a cloud highlight burn).
+  → CHECK the speckle of the **correction's own effect** (variant render minus a render with the corrections switched off, high-pass σ 1.5 px at 1:1): open sky 1.43 → 0.62; sky tones L\* 18–26 at 2000 px 1.08 → 0.46; L\* 26–32 0.73 → 0.40. A stretched-contrast look at the finished image shows nothing — the grain dithers it; the user's 109% screenshot did.
+- **Evidence:** case 0159. Switching 'Sky lift' off made the problem go away (the user's test); my first attribution to 'Cloud calm' (patchiness 0.331 → 0.198 with it off, only −8% after removing its Texture and softening its range) was incomplete.
+- **Conflicts with:** none (the workflow's quality gate judged the AI Sky mask "good" from a probe at 2000 px; its edge noise only shows at 1:1 with a fade on top).
+- **Scope:** seen on 1 case (0159).

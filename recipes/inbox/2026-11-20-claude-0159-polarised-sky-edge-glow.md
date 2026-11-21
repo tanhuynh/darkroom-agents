@@ -1,0 +1,10 @@
+# A polarised deep-blue sky glows towards the frame edges, and a local Exposure lift emphasises it; flatten it with an edge burn, not a mask feather
+- **Agent:** claude
+- **Target:** materials.md (Clouds / sky); playbooks/landscape.md §F (Depth, haze and sky); engine.md §8 (calibrations)
+- **Type:** new rule + calibration
+- **Rule:** IF a clear sky is very dark and its brightness rises towards both side edges (and towards the clouds) with a darker vertical band through the frame (here: x 50–60%, L\* 5.1; interior 10; left/right edge strips 17 / 15; top corners 13 / 9) → it is the **polariser's** dark band (the 90° arc from the sun), not a mask problem, and it was in the file. DO NOT lift the sky with a plain local Exposure first: it is multiplicative, so the bright edges gain more (+5.5 at L\* 17) than the dark band (+2.6 at L\* 5, +4.3 at L\* 10) and the glow grows. DO lift AND flatten: **Sky lift** Exp +0.19 (≈ +4.7 interior, +7 edges) with **Sky edge calm** Exp −0.17 on the same sky, limited to the outside of a centred radial (T −0.30, L 0.36, B 0.62, R 0.7335 in uncropped coordinates, feather 80) → edge-minus-interior gap 7.8 → 2.7 (original 7.5) while the whole blue sky median stays +2.3 above the original (13.9 vs 11.6).
+  → CHECK a stretched-tone view of the sky (L\* 0–30 mapped to a colour ramp): the gradient is smooth, no dark halo where the burn ends, clouds and rock untouched (±0.1 L\*).
+- **Evidence:** case 0159 (R5 II, **EXIF 24 mm** f/9, ISO 320): the glow-only fix by the user (three gradients ∩ a sampled Luminance Range, Exp −0.05 stored) moved the gap only 4.0 → 3.6; −0.15 gave 2.8. The user first said 47 mm; the EXIF said 24 mm — at 24 mm a polariser gradient across the frame is expected.
+- **For the next shoot (user note):** dial the polariser back to about half effect on wide lenses, or shoot a frame without it; do not boost the sky hard in post.
+- **Conflicts with:** none.
+- **Scope:** seen on 1 case (0159); the polariser cause is the user's hypothesis supported by the band shape and the EXIF focal length (not proven).

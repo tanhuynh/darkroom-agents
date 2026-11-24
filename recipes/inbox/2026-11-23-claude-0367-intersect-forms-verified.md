@@ -1,0 +1,12 @@
+# AI-mask clones as intersect operands, cloned object masks as subtracts and a headless linear gradient render as designed (after the user's Update)
+- **Agent:** claude
+- **Target:** WORKFLOW §2.6 and §3 ("Intersect forms (AI ∩ Luminance/Color Range or gradient) are unverified — flag them as experiments"); engine.md §6 (Linear, AI bullets); amends `2026-11-17-claude-0025-cloned-ai-mask.md` and the `ai-mask-refresh` proposals
+- **Type:** change rule (verified on 1 case; keep the "flag as experiment" wording until a second case)
+- **Rule:** IF a correction needs an existing AI/object mask as one operand → DO clone the component (fresh `MaskSyncID`, `$BigT` omitted, digest attributes kept; subtract = `MaskBlendMode="1"`, `MaskValue="0"`; intersect = blend 1 + `MaskInverted="true"`) and combine it with radials, a `Mask/Gradient` (`ZeroX/ZeroY/FullX/FullY`, intersect: blend 1 + inverted true) and a `Mask/RangeMask` written headless → CHECK after the user's **Update** that the mask rendered (diffmap) and that the regions it must not touch read ≈ 0. Expect: every scripted write returns a read-back **without `$BigT`**; the user's Update brings it back and may renormalise attributes (slider strings, digests, `Invert`). Some AI masks render only partly before the Update.
+- **Evidence:** case 0367, all read back byte-identical after the write and rendered after the Update:
+  - **Hero shadows** = AI Mountains clone ∩ Lum − 2 radial clones: tower dark pixels −0.27 L\*, slope dark pixels −0.10, slope/tower boundary rows −0.14…−0.21 (no bleed).
+  - **Slopes** = (radial L ∪ radial R) ∩ AI Mountains clone ∩ Lum − 3 Vegetation object clones: slopes +2.5/+2.6 L\*, inside the Vegetation core +0.05, lit faces −0.18, crevices +0.34; one shallow trough at the hand-over (+0.7 vs +2.4 and +5).
+  - **Horizon** = AI Sky clone ∩ `Mask/Gradient` (zero y 0.12, full y 0.42) ∩ Lum ∩ user Color Range: pure-sky band 64.3 → 56.9 at 1:1, rock edge ring −0.02.
+  - Before the Update the Mountains Texture/Clarity showed ≈ 0% detail change; after it +16…+17.5%.
+- **Conflicts with:** WORKFLOW §2.6 wording "unverified" (narrow it to "verified on 0367; still flag"); not a second rule.
+- **Scope:** seen on 1 case. Related: `2026-11-22-claude-0367-bigt-carry-through.md` (brushes in `$BigT` do not survive; object-mask dabs inline in the XMP and AI masks do).

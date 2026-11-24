@@ -1,8 +1,0 @@
-# When the sky beside the hero ridge is as bright as the lit rock, burn it with a gradient-limited sky clone
-- **Agent:** claude
-- **Target:** playbooks/landscape.md (sky / hero separation; add as *(1 case)*)
-- **Type:** new rule
-- **Rule:** IF the pure-sky L\* within about 120 px (1:1) of the hero ridge is within a few L\* of, or above, the lit rock (0367: 64.8 vs rock median 57, summit 75; at the saddle only hue separated them) → DO a Sky correction cloned from the AI Sky ∩ linear gradient (zero ≈ 0.3 frame heights above the ridge, full at the ridge line) ∩ Luminance Range with the **upper bound 1.0** ∩ a Color Range on the user's blue-sky sample, Exposure −0.10 stored (−0.40), no offsetting sliders → CHECK pure-sky L\* against distance from the rock at 1:1 (target: just under the rock's median), the rock edge ring and the rock itself ≈ 0, and no dark or light rim in a 1:1 crop.
-- **Evidence:** case 0367: 0–120 px band L\* 64.3 → 56.9 (burn −5.5 at 0–3 px, −7.1…−7.6 beyond; target 56–59), saddle pure-sky median 62.7 → 55.6 vs lit faces 56.3; rock edge ring −0.02, bright-rock edge +0.10, rock pixels +0.01 (1:1 crop of the crest, 1000×700); sky C\* +2.0 with the Saturation and Calibration edits. The first two versions failed: a "− Mountains clone" removed a band beside the ridge (burn 0 within 120 px) and a Lum upper bound of 0.85 (≈ L\* 58) cut off the brightest sky (see `…-lumrange-not-lstar.md`).
-- **Conflicts with:** none. Related: 0159 (polarised-sky edge glow: lift AND edge burn; AI Sky edge speckle) — here the AI Sky edge did not speckle at 1:1 because the Color Range and the luminance range also gate it.
-- **Scope:** seen on 1 case.

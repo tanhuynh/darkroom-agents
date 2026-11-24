@@ -56,6 +56,7 @@ Always measure with `tools/measure_all.py` (one call per checkpoint):
 - `…/.venv/bin/python tools/measure_all.py baseline <render.png> [--crop x0,y0,x1,y1]` — WB bins, 3×3 weight grid, crop grid preview.
 - `… diff <before.png> <after.png> [--hero x0,y0,x1,y1]` — regional table, tonal bands, `before_after`, `|ΔL*|×15` `diffmap`, `Δb*` `dbmap`, `hero_zoom`.
 - `tools/wb.py` = the detailed WB density-bin check (auto horizon; sky/cloud, fog/haze, pale-rock, darks/foliage bins).
+- **Control before judging a filter** *(0367 · claude, 1 case)*: a render made while the Camera Raw Filter was absent is not a fair baseline — a filter with every slider at 0 already shifts the render (0367: top row +0.6 L\*, C\* −1.2, b\* +1.1; mid row −0.5…−1.0 L\*, C\* −1.4…−2.2). Render a control with the filter present and every slider 0 (the History state before the first slider write, or the same XMP with sliders 0) and diff edits against it; regions you did not edit must read ≈ 0. Sample classes by pixel colour (b\*/hue) and report the count: a box that mixes sky and rock gives means that belong to neither.
 
 **Getting a render** `[ACCESS: adb-mcp, C2 — any connector must give a 16-bit PNG in a known color space]`: batchPlay [`duplicate` (merged) → `imageSize` 2000 px long edge → `convertToProfile` sRGB (colorimetric, BPC)], then `save_document_as(path, "PNG")` → **16-bit PNG** → `device_stage_files` → numpy; `close` the measure doc by `_id` (if PS already closed it, `close` errors "Cannot read properties of null" → `get_documents` first).
 - batchPlay `save` with a `_path` fails ("invalid file token"); `save_document_image_as_png` → "No raw image data".
@@ -126,7 +127,7 @@ Always measure with `tools/measure_all.py` (one call per checkpoint):
    "$CrVe":"19.0","$PrVN":6,"$PrVe":251920384,"$LCs":"<edited XMP>"}},
  "_options":{"dialogOptions":"dontDisplay"}}
 ```
-- Write behavior of AI masks, Remove patches, Brush masks, SyncIDs and dialog re-saves → §6 *Write semantics*. In adb-mcp the AI-mask bitmap blob is `$BigT`: omit it on writes.
+- Write behavior of AI masks, Remove patches, Brush masks, SyncIDs and dialog re-saves → §6 *Write semantics*. In adb-mcp the AI-mask bitmap blob is `$BigT`: omit it on writes (batchPlay rejects it: `ByteArray is not supported for this operation`, 0367).
 - Global filter keys verified: `$CrTx` Texture, `$Dhze` Dehaze, `$Tint` (relative on the rendered SO: −8 → fog a* ≈ −1.3; also nudges b* warmer and L* +2 globally). Probably (pixel-check first): `$Ex12 $Cr12 $Hi12 $Sh12 $Wh12 $Bk12 $Cl12 $Vibr`. An unknown key is still echoed by `get` → only a pixel check proves it works.
 
 **Raw Smart Object vs filter** `[DURABLE]`
@@ -137,17 +138,18 @@ Always measure with `tools/measure_all.py` (one call per checkpoint):
 ## 6. Camera Raw mask XMP schema `[DURABLE]`
 Correction: `crs:What="Correction"`, `CorrectionAmount="1"`, `CorrectionActive`, `CorrectionName`, `CorrectionSyncID`; local sliders on −1…+1 (`LocalExposure2012`, `LocalContrast2012`, `LocalHighlights2012`, `LocalShadows2012`, `LocalWhites2012`, `LocalBlacks2012`, `LocalClarity2012`, `LocalTexture`, `LocalDehaze`, `LocalTemperature`, `LocalTint`, `LocalSaturation`); then `crs:CorrectionMasks` seq. Components combine in order:
 - **Blend:** `MaskBlendMode="0"` add · `"1"` subtract · **intersect = `"1"` + `MaskInverted="true"`**. "∪ then ∩": several add components, then one intersect applies to the union. Radial subtract = blend 1, inverted false.
-- **Linear** `Mask/Gradient`: `ZeroX/ZeroY` (0) → `FullX/FullY` (1, stays 1 beyond); normalized, origin top-left; perpendicular in pixel space (`acr_band.py`).
+- **Linear** `Mask/Gradient`: `ZeroX/ZeroY` (0) → `FullX/FullY` (1, stays 1 beyond); normalized, origin top-left; perpendicular in pixel space (`acr_band.py`). **Headless-written, it works as an intersect** (blend 1 + `MaskInverted="true"`, `MaskValue="0"`) *(0367 · claude, 1 case)*.
 - **Radial** `Mask/CircularGradient`: `Top/Left/Bottom/Right` (normalized box, may exceed 0–1), `Angle`, `Midpoint` 50, `Roundness` 0, `Feather` 0–100, `Flipped="true"` = inside (as the dialog writes), `Version="2"`.
-- **Luminance Range** `Mask/RangeMask` + self-closing `crs:CorrectionRangeMask` `Version="4" Type="2"`, `LumRange="f_lo lo hi f_hi"` (0–1 ≈ L*/100 of the image the filter sees), `LuminanceDepthSampleInfo="0 0.5 1"`. **Creatable headless from scratch.**
-- **Color Range** `Version="4" Type="1"`, `ColorAmount` 0–1, `PointModels "x y c1 c2 c3 i"` (multiple samples = multiple entries). **Writable headless by cloning a user sample**; ColorAmount 0.49 = tan rock only, 0.8 = also pink/red rock.
-- **AI** `Mask/Image` with `MaskSubCategoryID` (landscape: Mountains 50002, Vegetation 50005); **object mask** = `Mask/Image` without subcategory + `crs:Gesture` → `Mask/Paint` dabs. Bitmaps in `$BigT`; **cannot be created headless**; survive writes without `$BigT`/`Gesture`.
+- **Luminance Range** `Mask/RangeMask` + self-closing `crs:CorrectionRangeMask` `Version="4" Type="2"`, `LumRange="f_lo lo hi f_hi"` four values = lower feather start, lower bound, **upper bound**, upper feather end; `LuminanceDepthSampleInfo="0 0.5 1"`. **The values are not L\*/100** *(0367 · claude, 1 case)*: on 0367's sky `0.85` ≈ L\* 58 (burn by sky L\*: 50–55 full, 55–60 about half, ≥ 60 none), so opening only the outer feather (`… 0.85 1.00`) left the brightest sky at 7–15%; the third value had to be 1.0 (hypothesis: the `RangeMaskMapInfo/LumEq` equalisation in the XMP). Calibrate bounds from a table of the correction's own effect per pixel L\*, not from L\*/100 (low tones roughly held: `0.02 0.05 0.30 0.40` lifted up to about L\* 32–40). The dialog re-saves an intersect range with `Invert="true"` and rewrites the depth sample; both render as intended. **Creatable headless from scratch.**
+- **Color Range** `Version="4" Type="1"`, `ColorAmount` 0–1, `PointModels "x y c1 c2 c3 i"` (multiple samples = multiple entries). **Writable headless by cloning a user sample**; ColorAmount 0.49 = tan rock only, 0.8 = also pink/red rock. The x/y values do not map onto image coordinates, so the **coverage cannot be read from the XMP — measure it per pixel class** *(0367 · claude, 1 case)*: 1 pink sample at 0.495 reached only a cloud core (+0.58 C\* on the pink, +0.33 slab), 4 samples covered the whole sky (+1.16 / +1.23 / +1.03), 5 samples minus a Color Range on one blue-sky sample (blend 1, not inverted) gave pink +0.82 / slab +0.46 / blue +0.18. Samples must be the user's.
+- **AI** `Mask/Image` with `MaskSubCategoryID` (landscape: Mountains 50002, Vegetation 50005); **object mask** = `Mask/Image` without subcategory + `crs:Gesture` → `Mask/Paint` dabs. Bitmaps in `$BigT`; **cannot be created headless**; survive writes without `$BigT`/`Gesture`. **Clones work as operands** *(0367 · claude, 1 case)*: an AI-mask clone (fresh `MaskSyncID`, `$BigT` omitted, digests kept) as an intersect or subtract, cloned object masks as subtracts, and radial clones as subtracts all rendered as designed after the user's Update (Slopes, Hero shadows, Horizon on 0367).
 - Not yet observed: standalone Brush XMP, Depth masks.
 - **All coordinates are in the uncropped SO frame** — a non-destructive crop only hides pixels; convert from an uncropped render (or crop-preview px → uncropped normalized).
 
 **Write semantics** (what Camera Raw does with a scripted write of the filter; moved here from §5)
 - AI masks, object masks and Generative Remove patches survive a write that omits their bitmap data (adb-mcp: `$BigT`) (verified 9956: patch ΔL* 0.00). Save before the first scripted write after a Remove (revert = safety net).
-- **Standalone Brush masks do NOT survive scripted writes** (0044) → do brush work last, after all scripted passes. (Brush dabs *inside* a mask group with Color Range did survive on 0028.)
+- **Brushes whose data lives in `$BigT` (`crs:MaskBrushTable`, `MaskBrushUncompressedBytes`) do NOT survive a scripted write** (0044, 9944, 0367): the write must omit `$BigT` (batchPlay rejects it) and the brush is emptied at the next dialog session (0367: the Mountains subtract brush lost its table, an empty subtract excludes nothing) → paint such brushes after the last scripted write, or use an XMP-native mask (gradient, radial, range, object mask). Brush dabs stored inline in the XMP (a `Mask/Aggregate` with `Mask/Paint` children, 0367 Vegetation; Color Range group on 0028) survived. `tools/ps_filter.js set` refuses while such a brush exists (`--allow-brush-loss` to accept it).
+- **Every scripted write reads back without `$BigT` until the user's Update** (yellow AI icon → OK in the dialog), which restores it and may renormalise attributes (slider strings, digests, `Invert`); some AI masks render only partly before the Update (0367: Mountains Texture/Clarity ≈ 0% detail before, +16…+17.5% after) *(0367 · claude, 1 case)*.
 - New corrections need fresh 32-char `CorrectionSyncID` / `MaskSyncID`.
 - Dialog re-save normalizes XMP (radials `Flipped="true"`, range masks `MaskValue="0"`) — keep what it wrote.
 - Keys not sent in a write are reset → always read the live filter first and resend everything (C3 → C4).
@@ -167,6 +169,15 @@ Correction: `crs:What="Correction"`, `CorrectionAmount="1"`, `CorrectionActive`,
 | `LocalTint` | −0.15 → a* ≈ −1 on fog | 9956 |
 | Local Dehaze | needs ≥ +0.25 to show on hazy areas; **strength varies by render path** (headless −11 L*, after dialog OK −5.5, after nesting −11) → judge on a full re-render | 9956, 9861 |
 | Texture/Clarity | under-read at 2000 px; +0.15/+0.10 invisible at preview scale on fog rock, +0.25/+0.15 → +20…39% | 9956, 0265 |
+| Dark land, object masks (L\* 17–22) | Exp **+0.08 stored (+0.32) + Shadows +0.20 → +3.7…+4.2 L\*** (dark pixels p90 +4.6…+5.0) | 0367 |
+| Near-black (L\* 7–10) | Exp +0.0375 + Shadows +0.09 → only +1.3…+1.6 L\* (needs ≥ 2× the midtone value) | 0367 |
+| Burn on a mid-bright sky (L\* 50–65) | **Exp −0.10 stored (−0.40) → −6…−7.5 L\*** at full gradient weight | 0367 |
+| `LocalHighlights2012` on a mostly mid-tone sky | −0.20 stored → −2.4 L\* whole sky, up to −6 on bright cloud edges | 0367 |
+| `LocalTemperature` on warm shade (b\* +8…+10) | −0.20 stored → b\* −1.1 (right slope) … −1.9 (left), −1.9…−2.9 foreground (≈ −0.06…−0.14 per −0.01; weaker on red rock) | 0367 |
+| Texture +0.20 / Clarity +0.10 on lit sandstone | +16…+17.5% detail at 2000 px, L\* ±0.2; stone at 1:1, no halos | 0367 |
+| Exp −0.02 + Shadows −0.06 on tower crevices | −0.27 L\* mean, p10 −0.88 — gentle | 0367 |
+| Filter Calibration blue hue −7 / sat +11 (`$BHue`, `$BSat`) | sky hue 282° → 279°; **C\* +1.8 on lit rock**, +0.9…+1.3 slopes/valley, sky +1.1…+1.9 | 0367 |
+| Pink cloud: Color Range ∩ Sky − blue sample, Saturation +0.15 | C\* +1.28 pink, +0.71 slab, +0.28 blue (coverage set by the samples, not the slider) | 0367 |
 
 ## 9. Who does what `[DURABLE — the C8 boundary; "Headless" = via the connector, so re-check per connector]`
 | Task | Headless | Needs the user |

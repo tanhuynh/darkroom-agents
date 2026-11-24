@@ -61,6 +61,10 @@ revise when a second image confirms or contradicts them.
   **→ CHECK** detail up, L* down ~5–8, haze still increasing with distance. *(9861, 9956)*
 - Distant ravines: radials ∩ Lum shadows 0/0/0.30/0.42, Exp −0.04, Blacks −0.10 → −2…−3 L*; don't push far darks toward foreground darks (FG ~12 vs far ~24). *(0013, 1 case)*
 - Sky: top ramp ∩ bright range, Highlights −0.25…−0.40, Exp −0.05, Texture +0.15, Dehaze +0.10 → cores −3…−5 L*. *(0265, 0013, 9785)*
+- **IF** the pure-sky L* within about 120 px (1:1) of the hero ridge is within a few L* of, or above, the lit rock (0367: 64.8 vs rock median 57, summit 75; at the saddle only hue separated them)
+  **→** a Sky correction cloned from AI Sky ∩ linear gradient (zero ≈ 0.3 frame heights above the ridge → full at the ridge) ∩ Luminance Range with the **upper bound 1.0** ∩ Color Range on the user's blue-sky sample, Exp −0.10 stored (−0.40), no offsetting sliders
+  **→ CHECK** pure-sky L* vs distance from the rock at 1:1 (0367: 0–120 px band 64.3 → 56.9, burn −7.4; saddle median 62.7 → 55.6 vs lit faces 56.3), rock edge ring and rock ≈ 0, no rim in a 1:1 crop. A "− Mountains clone" or a Lum upper bound below the sky's L* removes the burn exactly where you want it (engine §6). *(0367 · claude, 1 case)*
+- Pink/orange clouds to read cleaner against grey-violet: user Color Range on 3–5 pink samples (amount ≈ 0.5) ∩ AI Sky clone − Color Range on one blue-sky sample; Saturation +0.15, Highlights −0.05 (not Temperature). Coverage is set by the samples: 1 sample = core only, 4 without the subtract = whole sky. → CHECK C* gain per class at 1:1 (0367: pink +1.28, slab +0.71, blue +0.28; separation pink − slab +0.57). *(0367 · claude, 1 case)*
 - Storm break with no light below: light pool (feathered radial, Exp +0.09, Sat +0.03) + frame burn + sky top darkening; order dark top → glowing break → lit field → darker frame. *(9785, 1 case)*
 
 ## G. Fog-specific

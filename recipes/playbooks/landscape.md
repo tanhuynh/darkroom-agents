@@ -83,5 +83,6 @@ revise when a second image confirms or contradicts them.
 
 ## Critique standards (landscape)
 - Say what works first (composition, leading lines, DR retention, shadow detail, tonal balance), then top 2–3 FIX vs TASTE.
+- **Hero first** (WORKFLOW §2 step 4): the lit ridge/tower/arch, judged at 1:1 for detail, color, light/dimension and separation — also when the user asks mid-session for co-edit ideas ("what would make it pop"). Useful split: AI Mountains clone ∩ Luminance Range for **lit faces** vs **shadow sides**, so light and form are tuned separately (§C, §E). Don't propose desaturating the hero for red clipping measured on the sRGB preview — check ProPhoto values and a 1:1 crop first. *(0367: first co-edit review missed the hero; its only hero item was a preview-gamut clip)*
 - Web default; print only when the user says so (then strict clipping/gamut). Ignore the mat.
 - Restrained, center-guiding sculpting; the user likes some saturation and finds overly cautious edits flat — the structure pass (§E) is the answer to "flat", not global contrast.

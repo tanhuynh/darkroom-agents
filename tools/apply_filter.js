@@ -327,7 +327,8 @@ async function main() {
     ]
   });
 
-  const layer = layerRes.response;
+  // adb-mcp returns every batchPlay result (a list) since 08aaca3; older builds returned the first
+  const layer = Array.isArray(layerRes.response) ? layerRes.response[0] : layerRes.response;
   if (layer && layer.smartObject && layer.smartObject.filterFX) {
     console.log("FilterFX successfully verified! Count:", layer.smartObject.filterFX.length);
     const filter = layer.smartObject.filterFX[0].filter;

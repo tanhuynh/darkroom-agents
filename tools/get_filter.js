@@ -38,7 +38,8 @@ async function main() {
     clearTimeout(timer);
     socket.disconnect();
     console.log("Received packet_response! Status:", data.status);
-    const resp = data.response;
+    // adb-mcp returns every batchPlay result (a list) since 08aaca3; older builds returned the first
+    const resp = Array.isArray(data.response) ? data.response[0] : data.response;
     if (resp && resp.smartObject && resp.smartObject.filterFX) {
       console.log("Found filterFX! Length:", resp.smartObject.filterFX.length);
       const filter = resp.smartObject.filterFX[0].filter;

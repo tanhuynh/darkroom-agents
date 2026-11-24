@@ -1,0 +1,8 @@
+# Cleaning pink clouds with a Color Range: few samples are too narrow, many cover the sky — subtract a blue-sky sample
+- **Agent:** claude
+- **Target:** playbooks/landscape.md (sky colour; add as *(1 case)*); engine.md §6 (Color Range bullet: samples)
+- **Type:** new rule + engine fact
+- **Rule:** IF a colour correction must act on pink/orange clouds only → DO a correction = user Color Range on 3–5 pink samples (amount ≈ 0.5) ∩ AI Sky clone − a second Color Range on one blue-sky sample (blend 1, not inverted); use Saturation, not Temperature, for "cleaner" (0367: +0.15 stored, Highlights −0.05) → CHECK C\* gain per sky class at 1:1 (pink / grey-violet / blue) and the separation (pink − slab); do not forecast from the slider: coverage is set by the samples. Scripts can add the Sky intersect and tune sliders; the samples must be the user's.
+- **Evidence:** case 0367, 1:1 sky crop, C\* change vs the saved edit: 1 sample → pink +0.58, slab +0.33, blue +0.16, change only in the cloud core (a patch of about 620×195 px); 4 samples, no subtract → +1.16 / +1.23 / +1.03 (whole-sky saturation, separation −0.07, 100% of slab pixels > +0.8); 5 samples + blue subtract → +0.82 / +0.46 / +0.18 (separation +0.36); Saturation +0.15 → +1.28 / +0.71 / +0.28 (separation pink − slab +0.57, pink − blue +1.00; 88% of pink pixels > +1; no speckle; crest band and rock unchanged).
+- **Conflicts with:** none (engine.md §6 already says Color Range is writable by cloning a user sample; the `PointModels` x/y values do not map onto image coordinates, so the coverage cannot be read from the XMP — measure it).
+- **Scope:** seen on 1 case.

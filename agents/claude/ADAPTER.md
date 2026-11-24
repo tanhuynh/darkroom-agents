@@ -66,5 +66,6 @@ Agent-specific habits and quirks only — editing knowledge goes to `recipes/inb
 - Measures a "sky" or "rock" number in a box that includes the other (0367: "sky just above the ridge 62.9" contained rock; the lit-faces box contained sky and read −0.49 vs +0.01 on rock pixels) — classify pixels (hue/b\*) and report the count before quoting a region mean.
 - Calls a preview-clipping number a problem before reading the file's own values (0367: sRGB red clipped 13% in my conversion, ProPhoto ≥ 0.998 only 0.03%) — check ProPhoto first (WORKFLOW §2.4 now says so).
 - Proposes to level a dark local area from the numbers and retracts it on the full picture (0367: right-slope near-black band) — view the whole frame before planning to equalise a shadow layer, and say when the hero or a shadow is already right.
+- Forecasts a colour effect from a slider without knowing the mask's reach (0367: Pink cloud +4…+7 C\* forecast, +0.6 measured with one Color Range sample, then +1.2 across the whole sky with four) — measure the mask's coverage per pixel class first and forecast from that.
 - Keep image previews minimal (session limits): plan in text, one batched call, one composite image per pass.
 - Provenance tag for cases/proposals: `claude`.
